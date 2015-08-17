@@ -74,6 +74,7 @@ struct param
     float shiftCost;
     int threads;
     float threshold;
+    bool ids;
 };
 // param = { false, "","","","" };
 

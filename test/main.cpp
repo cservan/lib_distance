@@ -84,6 +84,7 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
     p.delCost=1.0;
     p.subCost=1.0;
     p.shiftCost=1.0;
+    p.ids = false;
 
     string s ( "" );
     string infos ("");
@@ -125,6 +126,10 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
         {
             p.debugMode = true;
         }
+        else if ( s.compare ( "--ids" ) == 0 )
+        {
+            p.ids = true;
+        }
         else if ( s.compare ( "--help" ) == 0 )
         {
             usage();
@@ -143,11 +148,9 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
 
 void usage()
 {
-// 	cerr<<"tercpp [-N] [-s] [-P] -r ref -h hyp [-a alter_ref] [-b beam_width] [-S trans_span_prefix] [-o out_format -n out_pefix] [-d max_shift_distance] [-M match_cost] [-D delete_cost] [-B substitute_cost] [-I insert_cost] [-T shift_cost]"<<endl;
-    cerr<<"Usage : "<<endl<<"\tbidistance -ms model_source -mt model_target :\n\n\t\t -ms\t: source model\n\t\t -mt\t: target model\n --debugMode \t: print debug messages \n\t\t --debugLevel \t: print debug messages regarding the level\n\t\t --help \t: print this help message.\n "<<endl;
-    exit(0);
-// 	System.exit(1);
 
+  cerr<<"Usage : "<<endl<<"\tdistance -ms model_source \n\n\t\t -ms\t: source model\n\t\t --help \t: print this help message.\n "<<endl;
+    exit(0);
 }
 
 void toString(vector < pair < string, float > > resultats)
@@ -160,76 +163,50 @@ void toString(vector < pair < string, float > > resultats)
   
 }
 
+vector< string > splitLine(const char *line)
+{
+  vector< string > item;
+  int start=0;
+  int i=0;
+  for(; line[i] != '\0'; i++) {
+    if (line[i] == ' ' &&
+        line[i+1] == '|' &&
+        line[i+2] == '|' &&
+        line[i+3] == '|' &&
+        line[i+4] == ' ') {
+      if (start > i) start = i; // empty item
+      item.push_back( string( line+start, i-start ) );
+      start = i+5;
+      i += 3;
+    }
+  }
+  item.push_back( string( line+start, i-start ) );
+  return item;
+}
+
+
 int main ( int argc, char *argv[] )
 {
     param myParams;
     readCommandLineArguments ( argc,argv, myParams);
-    if (((int)myParams.model_source.size()==0) || ((int)myParams.model_target.size()==0))
+    if (((int)myParams.model_source.size()==0))
     {
         cerr << "ERROR : main : models file are not set !" << endl;
         usage();
     }
     word2vecdistance::distance l_d(myParams.model_source);
-//     monolingualModel l_bm(myParams.model_source, myParams.threads, myParams.threshold);
-    string s="comptes";
-    string s2="véhicules";
-    vector < pair < string, float > > resultats;
-//     while (s.compare("EXIT") != 0)
-//     {
-// 	resultats = new vector< biWord>;
-        
-// 	cout << "Entrez le mot à rechercher:"<<endl;
-// 	cin >> s ;
-// 	cout << "Nous cherchons :"<< s <<endl;
-// 	resultats = l_d.recherche(s);
-// 	toString(resultats);
-// 	s="chien";
-// 	cout << "Nous cherchons :"<< s <<endl;
-//         resultats = l_d.recherche(s);
-// 	toString(resultats);
-// 	s="directives";
-// 	cout << "Nous cherchons :"<< s <<endl;
-//         resultats = l_d.recherche(s);
-// 	toString(resultats);
-// 	s="paris";
-// 	cout << "Nous cherchons :"<< s <<endl;
-//         resultats = l_d.recherche(s);
-	s="voitures";
-	cout << "Nous cherchons :"<< s <<endl;
-        resultats = l_d.recherche(s);	
-	toString(resultats);
-        s2="véhicules";
-	cout << "Nous comparons :"<< s << " et "<< s2<<endl;
-        cout<< l_d.getDistance(s.c_str(),s2.c_str()) <<endl;
-        s2="camionnettes";
-	cout << "Nous comparons :"<< s << " et "<< s2<<endl;
-        cout<< l_d.getDistance(s.c_str(),s2.c_str()) <<endl;
-        s2="utilitaires";
-	cout << "Nous comparons :"<< s << " et "<< s2<<endl;
-        cout<< l_d.getDistance(s.c_str(),s2.c_str()) <<endl;
-        s2="automobiles";
-	cout << "Nous comparons :"<< s << " et "<< s2<<endl;
-        cout<< l_d.getDistance(s.c_str(),s2.c_str()) <<endl;
-        s2="voitures";
-	cout << "Nous comparons :"<< s << " et "<< s2<<endl;
-        cout<< l_d.getDistance(s.c_str(),s2.c_str()) <<endl;
-	
-// 	toString(resultats);
-	
-// 	l_bm.oneToOneAlignment("ceci est un test !","this is a test !");
-// 	cerr << "Deuxieme recherche:"<<endl;
-// 	l_bm.oneToOneAlignment("reprise de la session","resumption of the session");
-
-//	if (s.compare("EXIT") == 0)
-//	{
-//	    return EXIT_SUCCESS;
-//	}
-//	int i;
-	/*for (i = 0 ; i < (int)resultats->size(); i++)
-	{
-	    cout << resultats->at(i).shortToString();
-	  
-	}*/
-//     }
+    cerr << "System launched!" <<endl << "Entrer words to be compared like this: \"word1 ||| word2\"" <<endl;
+    string line;
+    while (getline(cin,line))
+    {
+	vector<string> data = splitLine(line.c_str());
+	cerr << "You ask for "<< line <<endl;
+	if (data.size() == 2) 
+	  cout<< l_d.getDistance(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	if (data.size() == 3) 
+	  cout<< data.at(0) << " " << l_d.getDistance(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+// 	else cerr << "Can't answer!"<<endl;
+// 	cout << 0.0<<endl;
+    }
     return EXIT_SUCCESS;
 }

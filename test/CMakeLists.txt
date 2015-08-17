@@ -24,7 +24,7 @@ PROJECT(wookie)
 
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/src)
 
-SET(bidistance_SRCS
+SET(giveDistance_SRCS
    main.cpp
    ${CMAKE_SOURCE_DIR}/src/tools.cpp
    ${CMAKE_SOURCE_DIR}/src/biword.cpp
@@ -39,12 +39,12 @@ SET(threads_tests_SRCS
    
 )
 
-add_executable(bidistance2 ${bidistance_SRCS})
+add_executable(giveDistance ${giveDistance_SRCS})
 #add_executable(threads_tests ${threads_tests_SRCS})
 
-target_link_libraries(bidistance2 boost_regex boost_system boost_filesystem boost_iostreams boost_thread)
+target_link_libraries(giveDistance boost_regex boost_system boost_filesystem boost_iostreams boost_thread)
 #target_link_libraries(threads_tests boost_thread)
 # target_link_libraries(wookie tercalc xmlStructure documentStructure multiEvaluation)
 # 
-install(TARGETS bidistance2  DESTINATION bin)
+install(TARGETS giveDistance DESTINATION bin)
 
