@@ -25,35 +25,17 @@
 
 #include <fstream>
 #include <iostream>
-// #include <stdio.h>
-// #include <stdlib.h>
 #include <string.h>
 #include <vector>
-// #include "tools.h"
-// #include "tercalc.h"
-// #include "hashMapStringInfos.h"
-// #include "hashMapStringInfos.h"
-// #include "../src/hashmap.h"
-// #include "../src/stringhasher.h"
-// #include <boost/algorithm/string.hpp>
-// #include <boost/xpressive/xpressive.hpp>
-// #include "tercalc.h"
-// #include "stringInfosHasher.h"
-// #include "sgmlDocument.h"
-// #include "multiTxtDocument.h"
-// #include "xmlStructure.h"
 #include "tools.h"
 #include "bilingualModel.h"
 #include "distance.h"
 #include "monolingualModel.h"
-// #include "multiEvaluation.h"
 
 
 
-// using namespace TERCpp;
 using namespace std;
-// using namespace HashMapSpace;
-// using namespace boost::xpressive;
+using namespace Tools;
 
 
 void usage();
@@ -85,6 +67,7 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
     p.subCost=1.0;
     p.shiftCost=1.0;
     p.ids = false;
+    p.ngrams = false;
 
     string s ( "" );
     string infos ("");
@@ -130,6 +113,10 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
         {
             p.ids = true;
         }
+        else if ( s.compare ( "--ngrams" ) == 0 )
+        {
+            p.ngrams = true;
+        }
         else if ( s.compare ( "--help" ) == 0 )
         {
             usage();
@@ -163,27 +150,6 @@ void toString(vector < pair < string, float > > resultats)
   
 }
 
-vector< string > splitLine(const char *line)
-{
-  vector< string > item;
-  int start=0;
-  int i=0;
-  for(; line[i] != '\0'; i++) {
-    if (line[i] == ' ' &&
-        line[i+1] == '|' &&
-        line[i+2] == '|' &&
-        line[i+3] == '|' &&
-        line[i+4] == ' ') {
-      if (start > i) start = i; // empty item
-      item.push_back( string( line+start, i-start ) );
-      start = i+5;
-      i += 3;
-    }
-  }
-  item.push_back( string( line+start, i-start ) );
-  return item;
-}
-
 
 int main ( int argc, char *argv[] )
 {
@@ -202,9 +168,12 @@ int main ( int argc, char *argv[] )
 	vector<string> data = splitLine(line.c_str());
 	cerr << "You ask for "<< line <<endl;
 	if (data.size() == 2) 
-	  cout<< l_d.getDistance(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+// 	  cout<< l_d.getDistance(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	  cout<< l_d.getDistanceNgrams(data.at(0).c_str(),data.at(1).c_str()) <<endl;
 	if (data.size() == 3) 
-	  cout<< data.at(0) << " " << l_d.getDistance(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+// 	  cout<< data.at(0) << " " << l_d.getDistance(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	  cout<< data.at(0) << " " << l_d.getDistanceNgrams(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	
 // 	else cerr << "Can't answer!"<<endl;
 // 	cout << 0.0<<endl;
     }

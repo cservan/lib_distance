@@ -1092,4 +1092,45 @@ namespace Tools
 	}
 	return to_return;
     }
+    
+    vector< string > splitLine(const char *line)
+    {
+      vector< string > item;
+      int start=0;
+      int i=0;
+      for(; line[i] != '\0'; i++) {
+	if (line[i] == ' ' &&
+	    line[i+1] == '|' &&
+	    line[i+2] == '|' &&
+	    line[i+3] == '|' &&
+	    line[i+4] == ' ') {
+	  if (start > i) start = i; // empty item
+	  item.push_back( string( line+start, i-start ) );
+	  start = i+5;
+	  i += 3;
+	}
+      }
+      item.push_back( string( line+start, i-start ) );
+      return item;
+    }
+
+
+    vector< string > splitNgrams(const char *ngram)
+    {
+      vector< string > item;
+      int start=0;
+      int i=0;
+      for(; ngram[i] != '\0'; i++) {
+	if (ngram[i] == ' ' ){
+	  if (start > i) start = i; // empty item
+	  item.push_back( string( ngram+start, i-start ) );
+	  start = i+1;
+	  i = i+1;
+	}
+      }
+      item.push_back( string( ngram+start, i-start ) );
+      return item;
+    }
+
+
 }

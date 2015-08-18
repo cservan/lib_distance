@@ -39,6 +39,8 @@ const int vocab_hash_size = 30000000;
 
 namespace word2vecdistance
 {
+    vector< string > splitNgrams(const char *line);
+    vector< string > splitLine(const char *ngram);
   
 class distance
 {
@@ -52,11 +54,15 @@ class distance
       float *M;
       char *vocab;
       int *vocab_hash;
+      float lengen;
     public:
       distance(string filename);
       vector < pair < string, float > > recherche(string s);
       float getDistance(string s1,string s2);
       float getDistance(char * s1,char * s2);
+      float getDistanceNgrams(char * ng1,char * ng2);
+      float getDistance(const char * s1,const char * s2);
+      float getDistanceNgrams(const char * ng1,const char * ng2);
       bool strcompare(char * c1, char * c2);
       int getWordHash(char *word);
       int searchVocab(char *word);

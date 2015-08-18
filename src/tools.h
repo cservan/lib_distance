@@ -75,6 +75,7 @@ struct param
     int threads;
     float threshold;
     bool ids;
+    bool ngrams;
 };
 // param = { false, "","","","" };
 
@@ -141,6 +142,8 @@ struct param
 // };
     param copyParam(param p);    
     size_t hashValueBoost(string s);
+    vector< string > splitNgrams(const char *line);
+    vector< string > splitLine(const char *ngram);
 
      
 }
