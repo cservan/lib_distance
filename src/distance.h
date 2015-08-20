@@ -48,8 +48,9 @@ class distance
       FILE *f;
       char *bestw[N];
       char file_name[max_size], st[100][max_size];
-      float dist, len, bestd[N];
-      long long words, size, a, b, c, d, cn, bi[100];
+      float bestd[N];
+      long long words, size;
+//       , a, b, c, d, cn, bi[100];
       char ch;
       float *M;
       char *vocab;
@@ -60,9 +61,13 @@ class distance
       vector < pair < string, float > > recherche(string s);
       float getDistance(string s1,string s2);
       float getDistance(char * s1,char * s2);
-      float getDistanceNgrams(char * ng1,char * ng2);
       float getDistance(const char * s1,const char * s2);
       float getDistanceNgrams(const char * ng1,const char * ng2);
+      float getDistanceNgrams(char * ng1,char * ng2);
+      float getDistanceNgramsFixed(const char * ng1,const char * ng2);
+      float getDistanceNgramsFixed(char * ng1,char * ng2);
+      float getDistanceNgramsFixedOrdered(const char * ng1,const char * ng2);
+      float getDistanceNgramsFixedOrdered(char * ng1,char * ng2);
       bool strcompare(char * c1, char * c2);
       int getWordHash(char *word);
       int searchVocab(char *word);

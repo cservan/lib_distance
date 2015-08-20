@@ -68,6 +68,8 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
     p.shiftCost=1.0;
     p.ids = false;
     p.ngrams = false;
+    p.ngramsFixed = false;
+    p.ngramsFixedOrdered = false;
 
     string s ( "" );
     string infos ("");
@@ -116,6 +118,20 @@ void readCommandLineArguments ( unsigned int argc, char *argv[] , param & p)
         else if ( s.compare ( "--ngrams" ) == 0 )
         {
             p.ngrams = true;
+            p.ngramsFixed = false;
+            p.ngramsFixedOrdered = false;
+        }
+        else if ( s.compare ( "--ngramsFixed" ) == 0 )
+        {
+            p.ngrams = false;
+            p.ngramsFixed = true;
+            p.ngramsFixedOrdered = false;
+        }
+        else if ( s.compare ( "--ngramsFixedOrdered" ) == 0 )
+        {
+            p.ngrams = false;
+            p.ngramsFixed = false;
+            p.ngramsFixedOrdered = true;
         }
         else if ( s.compare ( "--help" ) == 0 )
         {
@@ -160,6 +176,8 @@ int main ( int argc, char *argv[] )
         cerr << "ERROR : main : models file are not set !" << endl;
         usage();
     }
+    cerr << myParams.ngrams << endl;
+    cerr << myParams.ngramsFixed << endl;
     word2vecdistance::distance l_d(myParams.model_source);
     cerr << "System launched!" <<endl << "Entrer words to be compared like this: \"word1 ||| word2\"" <<endl;
     string line;
@@ -168,14 +186,24 @@ int main ( int argc, char *argv[] )
 	vector<string> data = splitLine(line.c_str());
 	cerr << "You ask for "<< line <<endl;
 	if (data.size() == 2) 
-// 	  cout<< l_d.getDistance(data.at(0).c_str(),data.at(1).c_str()) <<endl;
-	  cout<< l_d.getDistanceNgrams(data.at(0).c_str(),data.at(1).c_str()) <<endl;
-	if (data.size() == 3) 
-// 	  cout<< data.at(0) << " " << l_d.getDistance(data.at(1).c_str(),data.at(2).c_str()) <<endl;
-	  cout<< data.at(0) << " " << l_d.getDistanceNgrams(data.at(1).c_str(),data.at(2).c_str()) <<endl;
-	
-// 	else cerr << "Can't answer!"<<endl;
-// 	cout << 0.0<<endl;
+	{
+	  if ( myParams.ngrams ) cout<< l_d.getDistanceNgrams(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	  if ( myParams.ngramsFixed ) cout<< l_d.getDistanceNgramsFixed(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	  if ( myParams.ngramsFixedOrdered ) cout<< l_d.getDistanceNgramsFixedOrdered(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	  if ( !myParams.ngrams && !myParams.ngramsFixed && !myParams.ngramsFixedOrdered ) cout<< l_d.getDistance(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	}
+	else if (data.size() == 3) 
+	{
+	  if ( myParams.ngrams ) cout<< data.at(0) << " " << l_d.getDistanceNgrams(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	  if ( myParams.ngramsFixed ) cout<< data.at(0) << " " << l_d.getDistanceNgramsFixed(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	  if ( myParams.ngramsFixedOrdered ) cout<< data.at(0) << " " << l_d.getDistanceNgramsFixedOrdered(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	  if ( !myParams.ngrams && !myParams.ngramsFixed && !myParams.ngramsFixedOrdered ) cout<< data.at(0) << " " << l_d.getDistance(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	}
+	else 
+	{
+	  cerr << "Input error!" <<endl;
+	  cout << "0.0" <<endl;
+	}
     }
     return EXIT_SUCCESS;
 }

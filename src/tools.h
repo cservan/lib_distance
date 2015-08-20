@@ -76,6 +76,9 @@ struct param
     float threshold;
     bool ids;
     bool ngrams;
+    bool ngramsFixed;
+    bool ngramsFixedOrdered;
+    
 };
 // param = { false, "","","","" };
 
