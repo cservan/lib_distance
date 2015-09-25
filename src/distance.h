@@ -39,7 +39,8 @@ const long long N = 40;                  // number of closest words that will be
 const long long max_w = 50;              // max length of vocabulary entries
 using namespace std;
 const int vocab_hash_size = 30000000;
-
+    vector< string > splitNgrams(const char *line);
+    vector< string > splitLine(const char *ngram);
 struct vocab_word {
   long long cn;
   int *point;
@@ -59,6 +60,7 @@ class distance
       char *vocab;
       float *D;
       float *L;
+      float lengen;
 //       struct vocab_word *vocab;
       int *vocab_hash;
 //       long long vocab_size;
@@ -80,7 +82,14 @@ class distance
       int searchVocab(char *word);
       void addWordToHash(char *word, int l_pos);
       void fillHash();
-};
+      float getDistanceNgrams(char * ng1,char * ng2);
+      float getDistance(const char * s1,const char * s2);
+      float getDistanceNgrams(const char * ng1,const char * ng2);
+      float getDistanceNgrams(char * ng1,char * ng2);
+      float getDistanceNgramsFixed(const char * ng1,const char * ng2);
+      float getDistanceNgramsFixed(char * ng1,char * ng2);
+      float getDistanceNgramsFixedOrdered(const char * ng1,const char * ng2);
+      float getDistanceNgramsFixedOrdered(char * ng1,char * ng2);
 }      
 #endif
 
