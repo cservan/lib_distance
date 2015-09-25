@@ -201,7 +201,7 @@ namespace word2vecdistance
     return to_return;
   }
 /*  
-  float distance::getDistance(string s1, string s2)
+  float distance::getSimilarity(string s1, string s2)
   {
     float vec1[max_size];
     float vec2[max_size];
@@ -332,7 +332,7 @@ namespace word2vecdistance
 //       return 1.0;
   }
   */
-    float distance::getDistance(char * st1, char * st2)
+    float distance::getSimilarity(char * st1, char * st2)
     {
 //       float vec1[max_size];
 //       float vec2[max_size];
@@ -367,7 +367,7 @@ namespace word2vecdistance
       return dist;
   }
   
-    float distance::getDistanceNgrams(char * ng1, char * ng2)
+    float distance::getSimilarityNgrams(char * ng1, char * ng2)
   {
 //       float len;
       float dist;
@@ -477,7 +477,7 @@ namespace word2vecdistance
       return dist/(sqrt(len1)*sqrt(len2));
   }
   
-    float distance::getDistanceNgramsFixed(char * ng1, char * ng2)
+    float distance::getSimilarityNgramsFixed(char * ng1, char * ng2)
   {
 //       float len;
       float dist;
@@ -570,7 +570,7 @@ namespace word2vecdistance
       return dist/(sqrt(len1)*sqrt(len2));
   }
 
-    float distance::getDistanceNgramsFixedOrdered(char * ng1, char * ng2)
+    float distance::getSimilarityNgramsFixedOrdered(char * ng1, char * ng2)
   {
 //       float len;
       float dist;
@@ -681,48 +681,77 @@ namespace word2vecdistance
       }
 //       cerr << endl;
   }
-  float distance::getDistance(const char* s1, const char* s2)
+  float distance::getSimilarity(const char* s1, const char* s2)
   {
       char st1[max_size];
       char st2[max_size];
       strcpy(st1,s1);
       strcpy(st2,s2);
-      return getDistance(st1,st2);
+      return getSimilarity(st1,st2);
   }
-  float distance::getDistance(string s1, string s2)
+  float distance::getSimilarity(string s1, string s2)
   {
       char st1[max_size];
       char st2[max_size];
       strcpy(st1,s1.c_str());
       strcpy(st2,s2.c_str());
-      return getDistance(st1,st2);
+      return getSimilarity(st1,st2);
   }
-  float distance::getDistanceNgrams(const char* ng1, const char* ng2)
+  float distance::getSimilarityNgrams(const char* ng1, const char* ng2)
   {
       char st1[max_size];
       char st2[max_size];
       strcpy(st1,ng1);
       strcpy(st2,ng2);
-      return getDistanceNgrams(st1,st2);
+      return getSimilarityNgrams(st1,st2);
 
   }
-  float distance::getDistanceNgramsFixed(const char* ng1, const char* ng2)
+  float distance::getSimilarityNgramsFixed(const char* ng1, const char* ng2)
   {
       char st1[max_size];
       char st2[max_size];
       strcpy(st1,ng1);
       strcpy(st2,ng2);
-      return getDistanceNgramsFixed(st1,st2);
+      return getSimilarityNgramsFixed(st1,st2);
 
   }
-  float distance::getDistanceNgramsFixedOrdered(const char* ng1, const char* ng2)
+  float distance::getSimilarityNgramsFixedOrdered(const char* ng1, const char* ng2)
   {
       char st1[max_size];
       char st2[max_size];
       strcpy(st1,ng1);
       strcpy(st2,ng2);
-      return getDistanceNgramsFixedOrdered(st1,st2);
+      return getSimilarityNgramsFixedOrdered(st1,st2);
 
   }
+float distance::getDistance(const char* s1, const char* s2)
+{
+    return 1.0-getSimilarity(s1,s2);
+}
+float distance::getDistanceNgrams(char* ng1, char* ng2)
+{
+    return 1.0-getSimilarityNgrams(ng1,ng2);
+}
+float distance::getDistanceNgrams(const char* ng1, const char* ng2)
+{
+    return 1.0-getSimilarityNgrams(ng1,ng2);
+}
+float distance::getDistanceNgramsFixed(char* ng1, char* ng2)
+{
+    return 1.0-getDistanceNgramsFixed(ng1,ng2);
+}
+float distance::getDistanceNgramsFixed(const char* ng1, const char* ng2)
+{
+    return 1.0-getDistanceNgramsFixed(ng1,ng2);
+}
+float distance::getDistanceNgramsFixedOrdered(char* ng1, char* ng2)
+{
+    return 1.0-getSimilarityNgramsFixedOrdered(ng1,ng2);
+}
+float distance::getDistanceNgramsFixedOrdered(const char* ng1, const char* ng2)
+{
+    return 1.0-getSimilarityNgramsFixedOrdered(ng1,ng2);
+}
 
+  
 }

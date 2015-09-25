@@ -187,17 +187,17 @@ int main ( int argc, char *argv[] )
 	cerr << "You ask for "<< line <<endl;
 	if (data.size() == 2) 
 	{
-	  if ( myParams.ngrams ) cout<< l_d.getDistanceNgrams(data.at(0).c_str(),data.at(1).c_str()) <<endl;
-	  if ( myParams.ngramsFixed ) cout<< l_d.getDistanceNgramsFixed(data.at(0).c_str(),data.at(1).c_str()) <<endl;
-	  if ( myParams.ngramsFixedOrdered ) cout<< l_d.getDistanceNgramsFixedOrdered(data.at(0).c_str(),data.at(1).c_str()) <<endl;
-	  if ( !myParams.ngrams && !myParams.ngramsFixed && !myParams.ngramsFixedOrdered ) cout<< l_d.getDistance(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	  if ( myParams.ngrams ) cout<< l_d.getSimilarityNgrams(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	  if ( myParams.ngramsFixed ) cout<< l_d.getSimilarityNgramsFixed(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	  if ( myParams.ngramsFixedOrdered ) cout<< l_d.getSimilarityNgramsFixedOrdered(data.at(0).c_str(),data.at(1).c_str()) <<endl;
+	  if ( !myParams.ngrams && !myParams.ngramsFixed && !myParams.ngramsFixedOrdered ) cout<< l_d.getSimilarity(data.at(0).c_str(),data.at(1).c_str()) <<endl;
 	}
 	else if (data.size() == 3) 
 	{
-	  if ( myParams.ngrams ) cout<< data.at(0) << " " << l_d.getDistanceNgrams(data.at(1).c_str(),data.at(2).c_str()) <<endl;
-	  if ( myParams.ngramsFixed ) cout<< data.at(0) << " " << l_d.getDistanceNgramsFixed(data.at(1).c_str(),data.at(2).c_str()) <<endl;
-	  if ( myParams.ngramsFixedOrdered ) cout<< data.at(0) << " " << l_d.getDistanceNgramsFixedOrdered(data.at(1).c_str(),data.at(2).c_str()) <<endl;
-	  if ( !myParams.ngrams && !myParams.ngramsFixed && !myParams.ngramsFixedOrdered ) cout<< data.at(0) << " " << l_d.getDistance(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	  if ( myParams.ngrams ) cout<< data.at(0) << " " << l_d.getSimilarityNgrams(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	  if ( myParams.ngramsFixed ) cout<< data.at(0) << " " << l_d.getSimilarityNgramsFixed(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	  if ( myParams.ngramsFixedOrdered ) cout<< data.at(0) << " " << l_d.getSimilarityNgramsFixedOrdered(data.at(1).c_str(),data.at(2).c_str()) <<endl;
+	  if ( !myParams.ngrams && !myParams.ngramsFixed && !myParams.ngramsFixedOrdered ) cout<< data.at(0) << " " << l_d.getSimilarity(data.at(1).c_str(),data.at(2).c_str()) <<endl;
 	}
 	else 
 	{

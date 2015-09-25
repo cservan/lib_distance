@@ -58,6 +58,15 @@ class distance
     public:
       distance(string filename);
       vector < pair < string, float > > recherche(string s);
+      float getSimilarity(string s1,string s2);
+      float getSimilarity(char * s1,char * s2);
+      float getSimilarity(const char * s1,const char * s2);
+      float getSimilarityNgrams(const char * ng1,const char * ng2);
+      float getSimilarityNgrams(char * ng1,char * ng2);
+      float getSimilarityNgramsFixed(const char * ng1,const char * ng2);
+      float getSimilarityNgramsFixed(char * ng1,char * ng2);
+      float getSimilarityNgramsFixedOrdered(const char * ng1,const char * ng2);
+      float getSimilarityNgramsFixedOrdered(char * ng1,char * ng2);
       float getDistance(string s1,string s2);
       float getDistance(char * s1,char * s2);
       float getDistance(const char * s1,const char * s2);
