@@ -1,13 +1,12 @@
 /*********************************
- * tercpp: an open-source Translation Edit Rate (TER) scorer tool for Machine Translation.
+ * lib-distance: an open-source library to use the word2vec models.
  *
- * Copyright 2010-2013, Christophe Servan, LIUM, University of Le Mans, France
  * Copyright 2015, Christophe Servan, GETALP-LIG, University of Grenoble, France
  * Contact: christophe.servan@gmail.com
  *
  * The tercpp tool and library are free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by 
- * the Free Software Foundation, either version 3 of the licence, or
+ * the Free Software Foundation, either version 2.1 of the licence, or
  * (at your option) any later version.
  *
  * This program and library are distributed in the hope that it will be useful, but WITHOUT
@@ -19,6 +18,7 @@
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * **********************************/
+
 #ifndef __WORD2VECDISTANCE_H__
 #define __WORD2VECDISTANCE_H__
 
@@ -29,45 +29,52 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <stdlib.h>
 
+namespace word2vecdistance
+{
 const long long max_size = 2000;         // max length of strings
 const long long N = 40;                  // number of closest words that will be shown
 const long long max_w = 50;              // max length of vocabulary entries
 using namespace std;
 const int vocab_hash_size = 30000000;
 
-namespace word2vecdistance
-{
-    vector< string > splitNgrams(const char *line);
-    vector< string > splitLine(const char *ngram);
-  
+struct vocab_word {
+  long long cn;
+  int *point;
+  char *word, *code, codelen;
+};
+
 class distance
 {
     private:
       FILE *f;
       char *bestw[N];
       char file_name[max_size], st[100][max_size];
-      float bestd[N];
-      long long words, size;
-//       , a, b, c, d, cn, bi[100];
+      float dist, len, bestd[N];
+      long long words, size, a, b, c, d, cn, bi[100];
       char ch;
       float *M;
       char *vocab;
+      float *D;
+      float *L;
+//       struct vocab_word *vocab;
       int *vocab_hash;
-      float lengen;
+//       long long vocab_size;
+//       long long vocab_max_size = 1000;
+      
+      
     public:
+//       multimap < string, int > * mvocab;
       distance(string filename);
       vector < pair < string, float > > recherche(string s);
+      float getSimilarity(string s1,string s2);
+      float getSimilarityTest(string &s1,string &s2);
+      float getSimilarity(char * s1,char * s2);
       float getDistance(string s1,string s2);
+      float getDistanceTest(string &s1,string &s2);
       float getDistance(char * s1,char * s2);
-      float getDistance(const char * s1,const char * s2);
-      float getDistanceNgrams(const char * ng1,const char * ng2);
-      float getDistanceNgrams(char * ng1,char * ng2);
-      float getDistanceNgramsFixed(const char * ng1,const char * ng2);
-      float getDistanceNgramsFixed(char * ng1,char * ng2);
-      float getDistanceNgramsFixedOrdered(const char * ng1,const char * ng2);
-      float getDistanceNgramsFixedOrdered(char * ng1,char * ng2);
       bool strcompare(char * c1, char * c2);
       int getWordHash(char *word);
       int searchVocab(char *word);

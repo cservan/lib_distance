@@ -1,63 +1,35 @@
+/*********************************
+ * lib-distance: an open-source library to use the word2vec models.
+ *
+ * Copyright 2015, Christophe Servan, GETALP-LIG, University of Grenoble, France
+ * Contact: christophe.servan@gmail.com
+ *
+ * The tercpp tool and library are free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by 
+ * the Free Software Foundation, either version 2.1 of the licence, or
+ * (at your option) any later version.
+ *
+ * This program and library are distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * **********************************/
 #include "distance.h"
-#include "tools.h"
 using namespace std;
 namespace word2vecdistance
 {
-    vector< string > splitLine(const char *line)
-    {
-      vector< string > item;
-      int start=0;
-      int i=0;
-//       char st[max_size];
-      for(; line[i] != '\0'; i++) {
-	if (line[i] == ' ' &&
-	    line[i+1] == '|' &&
-	    line[i+2] == '|' &&
-	    line[i+3] == '|' &&
-	    line[i+4] == ' ') {
-	  if (start > i) start = i; // empty item
-	  item.push_back( string( line+start, i-start ).c_str() );
-// 	  item.push_back(st);
-	  start = i+5;
-	  i += 3;
-	}
-      }
-      item.push_back( string( line+start, i-start ).c_str() );
-//       item.push_back(st);
-      return item;
-    }
-
-
-    vector< string > splitNgrams(const char *ngram)
-    {
-      vector< string > item;
-      int start=0;
-      int i=0;
-//       char st[max_size];
-      for(; ngram[i] != '\0'; i++) {
-	if (ngram[i] == ' ' ){
-	  if (start > i) start = i; // empty item
-	  item.push_back( string( ngram+start, i-start ).c_str() );
-// 	  strcpy(st,string( ngram+start, i-start ).c_str());
-// 	  item.push_back(st);
-	  start = i+1;
-	  i = i+1;
-	}
-      }
-      item.push_back( string( ngram+start, i-start ).c_str() );
-//       strcpy(st,string( ngram+start, i-start ).c_str());
-//       item.push_back(st);
-      return item;
-    }
 
   distance::distance(string filename)
   {
-    float len;
-    int a, b;
     strcpy(file_name, filename.c_str());
     f = fopen(file_name, "rb");
-    if (f == NULL) {
-      printf("Input file not found\n");
+    if (f == NULL) 
+    {
+      printf("Word2Vec Model file not found\n");
       exit(-1);
     }
     fscanf(f, "%lld", &words);
@@ -65,14 +37,20 @@ namespace word2vecdistance
     vocab = (char *)malloc((long long)words * max_w * sizeof(char));
     for (a = 0; a < N; a++) bestw[a] = (char *)malloc(max_size * sizeof(char));
     M = (float *)malloc((long long)words * (long long)size * sizeof(float));
-    if (M == NULL) {
+//     D = (float *)malloc((long long)words * (long long)words * sizeof(float));
+//     L = (float *)malloc((long long)words * sizeof(float));
+    if (M == NULL) 
+    {
       printf("Cannot allocate memory: %lld MB    %lld  %lld\n", (long long)words * size * sizeof(float) / 1048576, words, size);
       exit(-1);
     }
-    printf("Allocation of memory: %lld MB    %lld  %lld\n", (long long)words * size * sizeof(float) / 1048576, words, size);
-    for (b = 0; b < words; b++) {
+    cerr << "Loading word2vec model...";
+//     printf("Allocation of memory: %lld MB    %lld  %lld\n", (long long)words * size * sizeof(float) / 1048576, words, size);
+    for (b = 0; b < words; b++) 
+    {
       a = 0;
-      while (1) {
+      while (1) 
+      {
 	vocab[b * max_w + a] = fgetc(f);
 	if (feof(f) || (vocab[b * max_w + a] == ' ')) break;
 	if ((a < max_w) && (vocab[b * max_w + a] != '\n')) a++;
@@ -85,7 +63,35 @@ namespace word2vecdistance
       for (a = 0; a < size; a++) M[a + b * size] /= len;
     }
     fclose(f);
+    
+//     mvocab = new multimap < string, int >;
+//     for (b = 0; b < words; b++) 
+//     {
+// // 	pair < string, int > p(string(&vocab[b * max_w]),b);
+//  	mvocab->insert(make_pair < string, int > (string(&vocab[b * max_w]),b));
+//     }
+    
+//     for (b = 0; b < words; b++) 
+//     {
+// 	len = 0;
+// 	for (a = 0; a < size; a++) len += M[a + b * size] * M[a + b * size];
+// 	L[b] = sqrt(len);
+//     }
+//     for (b = 0; b < words; b++) 
+//     {
+// 	for (c = 0; c <= b; c++) 
+// 	{
+// 	    D[b*c] = 0.0;
+// 	    for (a = 0; a < size; a++) 
+// 	    {
+// 		D[b*c] += (M[a + b * size] / L[b]) * (M[a + c * size] / L[c]);
+// 	    }
+// 	}
+//     }
+
+//     cerr << mvocab->size() <<endl;
     fillHash();
+    cerr << "finished!" <<endl;
   }
 
 
@@ -93,9 +99,6 @@ namespace word2vecdistance
   {
     vector< pair< string, float > > to_return;
     float vec[max_size];
-    float len;
-    float dist;
-    int a, b, c, d, cn, bi[10];
     for (a = 0; a < N; a++) bestd[a] = 0;
     for (a = 0; a < N; a++) bestw[a][0] = 0;
 //     printf("Enter word or sentence (EXIT to break): ");
@@ -134,7 +137,7 @@ namespace word2vecdistance
       bi[a] = b;
 //       printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
       if (b == -1) {
-	printf("%s: Out of dictionary word!\n",st[a]);
+// 	printf("%s: Out of dictionary word!\n",st[a]);
         return to_return;
       }
     }
@@ -180,14 +183,10 @@ namespace word2vecdistance
     }
     return to_return;
   }
-/*  
-  float distance::getDistance(string s1, string s2)
+  float distance::getSimilarity(string s1, string s2)
   {
     float vec1[max_size];
     float vec2[max_size];
-    float len;
-    float dist;
-    int a, b, cn, bi[10];
   //     vector< pair< string, float > > to_return;
       for (a = 0; a < N; a++) bestd[a] = 0;
       for (a = 0; a < N; a++) bestw[a][0] = 0;
@@ -223,10 +222,11 @@ namespace word2vecdistance
 // 	printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
 	pos1=bi[a];
 	if (b == -1) {
-	  printf("%s: Out of dictionary word!\n",st[a]);
+// 	  printf("%s: Out of dictionary word!\n",st[a]);
 	  return 0.0;
 	}
       }
+      // Verification de la présence dans le vocab
       cn = 0;
       b = 0;
       c = 0;
@@ -246,14 +246,13 @@ namespace word2vecdistance
       cn++;
       for (a = 0; a < cn; a++) {
 //       cerr << a << " " << cn << endl;
-      // Verification de la présence dans le vocab
 	for (b = 0; b < words; b++) if (!strcmp(&vocab[b * max_w], st[a])) break;
 	if (b == words) b = -1;
 	bi[a] = b;
 	pos2=bi[a];
 // 	printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
 	if (b == -1) {
-	  printf("%s: Out of dictionary word!\n",st[a]);
+// 	  printf("%s: Out of dictionary word!\n",st[a]);
 	  return 0.0;
 	}
       }
@@ -311,24 +310,59 @@ namespace word2vecdistance
 //       }
 //       return 1.0;
   }
-  */
-    float distance::getDistance(char * st1, char * st2)
-    {
+  float distance::getSimilarityTest(string &s1, string &s2)
+  {
 //       float vec1[max_size];
 //       float vec2[max_size];
 //       float len1=0;
 //       float len2=0;
-//       char st1[max_w];
-//       char st2[max_w];
-//       strcpy(st1, s1v.c_str());
-//       strcpy(st2, s2.c_str());
-//       float len;
-      float dist;
-      int a;
-      cerr << "Words"<< endl;
+      char st1[max_w];
+      char st2[max_w];
+      strcpy(st1, s1.c_str());
+      strcpy(st2, s2.c_str());
       int pos1 = -1; 
       int pos2 = -1;
-//       b = 0;
+      b = 0;
+      for (b = 0; b < words; b++)
+      {
+	if (!strcmp(&vocab[b * max_w], st1)) 
+	{
+	  pos1=b;
+	  break;
+	}
+      }
+      if (pos1 == -1) 
+      {
+	return 0.0;
+      }
+      for (c = 0; c < words; c++)
+      {
+	if (!strcmp(&vocab[c * max_w], st2)) 
+	{
+	  pos2=c;
+	  break;
+	}
+      }
+      if (pos2 == -1) 
+      {
+	return 0.0;
+      }
+      dist = 0;
+      for (a = 0; a < size; a++) 
+      {
+	  dist += M[a + pos1 * size] * M[a + pos2 * size] ;
+      }
+      return dist;
+  }
+  float distance::getSimilarity(char * st1, char * st2)
+  {
+//       float vec1[max_size];
+//       float vec2[max_size];
+//       float len1=0;
+//       float len2=0;
+      int pos1 = -1; 
+      int pos2 = -1;
+      b = 0;
       pos1 = searchVocab(st1);
       if (pos1 == -1) 
       {
@@ -346,257 +380,16 @@ namespace word2vecdistance
       }
       return dist;
   }
+  float distance::getDistance(char * st1, char * st2)
+  {
+      return (1.0-getSimilarity(st1,st2));
+  }
+  float distance::getDistance(string st1, string st2)
+  {
+      return (1.0-getSimilarity(st1,st2));
+  }
+ 
   
-    float distance::getDistanceNgrams(char * ng1, char * ng2)
-  {
-//       float len;
-      float dist;
-      int a;
-      float vec1[size];
-      float vec2[size];
-      float len1=0;
-      float len2=0;
-      char st1[max_size];
-      char st2[max_size];
-      int size1 = 0;
-      int size2 = 0;
-      cerr << "Ngram"<< endl;
-//       cerr << ng1 << "\t"<< ng2 << endl;
-      vector<string> vs1 = splitNgrams(ng1);
-//       cerr << Tools::vectorToString(vs1," ", vs1.size());
-      vector<string> vs2 = splitNgrams(ng2);
-//       cerr << vs1.at(0) << endl;
-//       cerr << vs2.at(0) << endl;
-//       char st1[max_w];
-//       char st2[max_w];
-//       strcpy(st1, s1.c_str());
-//       strcpy(st2, s2.c_str());
-      int i;
-      int pos1 = -1; 
-      int pos2 = -1;
-//       b = 0;
-      for (a = 0; a < size; a++) 
-      {
-	  vec1[a]=0.0;
-	  vec2[a]=0.0;
-      }
-      bool trouve = false;
-      for (i=0 ; i < (int)vs1.size(); i++)
-      {
-// 	  cerr << vs1.at(i) << endl;
-	  strcpy(st1,vs1.at(i).c_str());
-	  pos1 = searchVocab(st1);
-	  if (pos1 != -1) 
-	  {
-	      trouve = true;
-	      size1++;
-// 	      cerr << pos1 <<endl;
-	      for (a = 0; a < size; a++) 
-	      {
-		  vec1[a] += M[a + pos1 * size];
-	      }
-// 	      cerr << endl;
-	  }
-	  else
-	  {
-	      for (a = 0; a < size; a++) 
-	      {
-		  vec1[a] += 1;
-// 		  cerr << vec2[a] << " ";
-	      }
-// 	      cerr << endl;
-	  }
-// 	return 0.0;
-      }
-      if (!trouve) return 0.0;
-      trouve = false;
-      for (i=0 ; i < (int)vs2.size(); i++)
-      {
-// 	  cerr << vs2.at(i) << endl;
-	  strcpy(st2,vs2.at(i).c_str());
-	  pos2 = searchVocab(st2);
-	  if (pos2 != -1) 
-	  {
-// 	      cerr << pos2 <<endl;
-	      trouve = true;
-	      size2++;
-	      for (a = 0; a < size; a++) 
-	      {
-		  vec2[a] += M[a + pos2 * size];
-// 		  cerr << vec2[a] << " ";
-	      }
-	  }
-	  else
-	  {
-	      for (a = 0; a < size; a++) 
-	      {
-		  vec2[a] += 1;
-// 		  cerr << vec2[a] << " ";
-	      }
-// 	      cerr << endl;
-	  }
-// 	return 0.0;
-      }
-      if (!trouve) return 0.0;
-      dist = 0;
-      len1 = 0.0;
-      len2 = 0.0;
-      for (a = 0; a < size; a++) 
-      {
-	  len1 += vec1[a]*vec1[a];
-	  len2 += vec2[a]*vec2[a];
-// 	  dist += (vec1[a]/size1) * (vec2[a]/size2) ;
-	  dist += (vec1[a]) * (vec2[a]) ;
-// 		  cerr << vec1[a] << " " << vec2[a] << endl;;
-      }
-//       cerr << len1 <<"\t"<< len2 << endl;
-//       cerr << Tools::vectorToString(vec1," ") <<endl;
-//       cerr << Tools::vectorToString(vec2," ") <<endl;
-      
-//       return dist;
-      return dist/(sqrt(len1)*sqrt(len2));
-  }
-  
-    float distance::getDistanceNgramsFixed(char * ng1, char * ng2)
-  {
-//       float len;
-      float dist;
-      int a;
-      float vec1[size];
-      float vec2[size];
-      float len1=0;
-      float len2=0;
-      char st1[max_size];
-      char st2[max_size];
-      int size1 = 0;
-      int size2 = 0;
-      vector<string> vs1 = splitNgrams(ng1);
-      vector<string> vs2 = splitNgrams(ng2);
-      cerr << "NgramFixed"<< endl;
-      if ( vs1.size() != vs2.size() )
-      {
-	  cerr << "Error: vector sizes are different!" <<endl;
-	  return 0.0;
-      }
-      int i;
-      int pos1 = -1; 
-      int pos2 = -1;
-//       b = 0;
-      for (a = 0; a < size; a++) 
-      {
-	  vec1[a]=0.0;
-	  vec2[a]=0.0;
-      }
-      bool trouve = false;
-      for (i=0 ; i < (int)vs1.size(); i++)
-      {
-// 	  cerr << vs1.at(i) << endl;
-	  strcpy(st1,vs1.at(i).c_str());
-	  pos1 = searchVocab(st1);
-	  if (pos1 != -1) 
-	  {
-	      trouve = true;
-	      size1++;
-// 	      cerr << pos1 <<endl;
-	      for (a = 0; a < size; a++) 
-	      {
-		  vec1[a] += M[a + pos1 * size];
-	      }
-	  }
-	  else
-	  {
-	      for (a = 0; a < size; a++) 
-	      {
-		  vec1[a] += 1;
-	      }
-	  }
-      }
-      if (!trouve) return 0.0;
-      trouve = false;
-      for (i=0 ; i < (int)vs2.size(); i++)
-      {
-// 	  cerr << vs2.at(i) << endl;
-	  strcpy(st2,vs2.at(i).c_str());
-	  pos2 = searchVocab(st2);
-	  if (pos2 != -1) 
-	  {
-// 	      cerr << pos2 <<endl;
-	      trouve = true;
-	      size2++;
-	      for (a = 0; a < size; a++) 
-	      {
-		  vec2[a] += M[a + pos2 * size];
-	      }
-	  }
-	  else
-	  {
-	      for (a = 0; a < size; a++) 
-	      {
-		  vec2[a] += 1;
-	      }
-	  }
-      }
-      if (!trouve) return 0.0;
-      dist = 0;
-      len1 = 0.0;
-      len2 = 0.0;
-      for (a = 0; a < size; a++) 
-      {
-	  len1 += vec1[a]*vec1[a];
-	  len2 += vec2[a]*vec2[a];
-	  dist += (vec1[a]) * (vec2[a]) ;
-      }
-//       cerr << len1 <<"\t"<< len2 << endl;
-      return dist/(sqrt(len1)*sqrt(len2));
-  }
-
-    float distance::getDistanceNgramsFixedOrdered(char * ng1, char * ng2)
-  {
-//       float len;
-      float dist;
-      int a;
-      char st1[max_size];
-      char st2[max_size];
-      if (strcmp(ng1,ng2) == 0) return 1.0;
-      vector<string> vs1 = splitNgrams(ng1);
-      vector<string> vs2 = splitNgrams(ng2);
-      cerr << "NgramFixedOrdered"<< endl;
-      if ( vs1.size() != vs2.size() )
-      {
-	  cerr << "Error: vector sizes are different!" <<endl;
-	  return 0.0;
-      }
-      int i;
-      int pos1 = -1; 
-      int pos2 = -1;
-//       b = 0;
-      dist = 0.0;
-      for (i=0 ; i < (int)vs1.size(); i++)
-      {
-	  float l_dist = 0.0;
-	  strcpy(st1,vs1.at(i).c_str());
-	  strcpy(st2,vs2.at(i).c_str());
-	  if (strcmp(st1,st2) == 0) 
-	  {
-	      l_dist=1.0;
-	  }
-	  else
-	  {
-	      pos1 = searchVocab(st1);
-	      pos2 = searchVocab(st2);
-	      if ((pos2 != -1) && (pos1 != -1)) 
-	      {
-		  for (a = 0; a < size; a++) 
-		  {
-		      l_dist += M[a + pos1 * size] * M[a + pos2 * size];
-		  }
-	      }
-	  }
-	  dist += l_dist;
-      }
-      dist = dist / (float)vs1.size();
-      return dist;
-  }
   bool distance::strcompare(char* c1, char* c2)
   {
       int l1 = strlen(c1);
@@ -640,69 +433,19 @@ namespace word2vecdistance
     unsigned int hash = getWordHash(word);
     while (vocab_hash[hash] != -1) hash = (hash + 1) % vocab_hash_size;
     vocab_hash[hash] = l_pos;
-//     return l_pos;
   }
   void distance::fillHash()
   {
       int c;
       vocab_hash = (int*)calloc(vocab_hash_size, sizeof(int));
-//       cerr << "Size of hash vocab : " << vocab_hash_size <<endl;
       for (c = 0; c < vocab_hash_size; c++)
       {
 	  vocab_hash[c] = -1;
       }
-//       cerr << "Size of vocab : " << words <<endl;
       for (c = 0; c < words; c++)
       {
 	 addWordToHash(&vocab[c * max_w], c);
-// 	cerr << ".";
-// 	 if (c % (words / 100) == 0)
-// 	   cerr << "|";
       }
-//       cerr << endl;
-  }
-  float distance::getDistance(const char* s1, const char* s2)
-  {
-      char st1[max_size];
-      char st2[max_size];
-      strcpy(st1,s1);
-      strcpy(st2,s2);
-      return getDistance(st1,st2);
-  }
-  float distance::getDistance(string s1, string s2)
-  {
-      char st1[max_size];
-      char st2[max_size];
-      strcpy(st1,s1.c_str());
-      strcpy(st2,s2.c_str());
-      return getDistance(st1,st2);
-  }
-  float distance::getDistanceNgrams(const char* ng1, const char* ng2)
-  {
-      char st1[max_size];
-      char st2[max_size];
-      strcpy(st1,ng1);
-      strcpy(st2,ng2);
-      return getDistanceNgrams(st1,st2);
-
-  }
-  float distance::getDistanceNgramsFixed(const char* ng1, const char* ng2)
-  {
-      char st1[max_size];
-      char st2[max_size];
-      strcpy(st1,ng1);
-      strcpy(st2,ng2);
-      return getDistanceNgramsFixed(st1,st2);
-
-  }
-  float distance::getDistanceNgramsFixedOrdered(const char* ng1, const char* ng2)
-  {
-      char st1[max_size];
-      char st2[max_size];
-      strcpy(st1,ng1);
-      strcpy(st2,ng2);
-      return getDistanceNgramsFixedOrdered(st1,st2);
-
   }
 
 }
