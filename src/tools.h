@@ -89,9 +89,11 @@ struct param
     string vectorToString ( vector<string> vec );
     string vectorToString ( vector<char> vec );
     string vectorToString ( vector<int> vec );
+    string vectorToString ( vector<float> vec );
     string vectorToString ( vector<string> vec, string s );
     string vectorToString ( vector<char> vec, string s );
     string vectorToString ( vector<int> vec, string s );
+    string vectorToString ( vector<float> vec, string s );
     string vectorToString ( vector<bool> vec, string s );
     string vectorToString ( char* vec, string s, int taille );
     string vectorToString ( int* vec, string s , int taille );

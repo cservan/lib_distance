@@ -25,19 +25,64 @@ public class Lib_distance
 
 	  public Lib_distance(String filename) throws IOException
 	  {
+		  
 //		  FileInputStream fis = new FileInputStream(filename);  
 		  //BufferedInputStream bin = new BufferedInputStream(fis);
-//		  BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8);
+		  //BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8);
 //		  String line;
 //		  System.out.println(reader.read());
 		  Charset charset = StandardCharsets.UTF_8;
-		  String content = new String(Files.readAllBytes(Paths.get(filename)),
-				  charset);
+		  String content = new String(Files.readAllBytes(Paths.get(filename)), charset);
 		  
 		  //System.out.println(content);
-		  System.out.println(content.substring(0,300));
+//		  System.out.println(content.substring(0,300));
+		  String contentTab[]=content.substring(0,300).split("\\s+");
+		  words =  Integer.parseInt(contentTab[0]);
+		  size =  Integer.parseInt(contentTab[1]);
+		  int tmpLength=contentTab[0].length()+1+contentTab[1].length()+1;
+		  int cpt=0;
+		  String tmpcontent=content.substring(tmpLength);
+//		  while (tmpLength < content.length() && cpt < 5)
+//		  {
+		  
+			  String output = tmpcontent.substring(0,tmpcontent.indexOf(" "));
+			  String data = tmpcontent.substring(tmpcontent.indexOf(" "),(int)(size+1)*2);
+			  System.out.println(output);
+			  System.out.println(data);
+			  
+			  cpt++;
+//		  }
+	//      BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8);
+//	      System.out.println(reader.readLine());
+	      
+			  
+//		  System.out.println("0 "+contentTab[0]);
+//		  System.out.println("1 "+contentTab[1]);
+		  System.out.println("2 "+contentTab[2]);
+		  System.out.println("3 "+contentTab[3]);
+		  System.out.println("4 "+contentTab[4]);
+		  System.out.println("5 "+contentTab[5]);
               //System.out.println(line);
-	        final String original = "Mémé dans les orties";
+		  FileInputStream inputBinaryFile = new FileInputStream (filename);        // Fichier binaire    
+		  DataInputStream inputBinaryData = new DataInputStream (inputBinaryFile);    // Le même fichier via stream
+		  //0.198994        0.219711        -0.190422       -0.162968       0.0679395       0.150194        0.0467748       0.0105065       -0.179149       0.110292        -0.216578       0.0621211       -0.0373531      -0.0475865      -0.164842       -0.0935723      0.128232      0.150406 0.147607        0.079417        0.0767998       -0.189049       -0.203621       0.247066        0.18898 0.153622        -0.0300251      0.199639        -0.0246087      0.0365262       -0.00741903     -0.148312       0.0652389       -0.0664906      -0.190179     0.236354 0.217716        -0.0544441      -0.0112423      0.0253142       -0.180848       -0.199214       0.22644 0.00313298      -0.128384       -0.15124        -0.152947       0.084363        0.0100134       0.066172
+
+		  System.out.println(inputBinaryData.readLine());
+		  System.out.println(inputBinaryData.read());
+		  System.out.println(inputBinaryData.read());
+		  System.out.println(inputBinaryData.read());
+		  System.out.println(inputBinaryData.read());
+		  System.out.println(inputBinaryData.read());
+		  System.out.print(inputBinaryData.read());
+		  /*
+		  int NbDonneesLues=0;         
+		  for(;;){                
+		   
+		  TabNum [NbDonneesLues] = (long)inputBinaryData.readInt ();
+		  NbDonneesLues++;                                            
+		  }
+*/
+		  final String original = "Mémé dans les orties";
 
 	        final byte[] encoded = original.getBytes(charset);
     //      while ((line = reader.readLine()) != null) {

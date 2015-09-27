@@ -78,6 +78,9 @@ class distance
       float getDistanceNgramsFixedOrdered(char * ng1,char * ng2);
       bool strcompare(char * c1, char * c2);
       int getWordHash(char *word);
+      vector<float> getWord(char *word);
+      vector<float> getWord(const char *word);
+      vector<float> getWord(string word);
       int searchVocab(char *word);
       void addWordToHash(char *word, int l_pos);
       void fillHash();

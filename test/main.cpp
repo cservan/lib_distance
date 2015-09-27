@@ -185,6 +185,12 @@ int main ( int argc, char *argv[] )
     {
 	vector<string> data = splitLine(line.c_str());
 	cerr << "You ask for "<< line <<endl;
+	if (data.size() == 1) 
+	{
+	    cout<< vectorToString(l_d.getWord(data.at(0).c_str()),"\t")<< endl;
+// 	    cout << "error" << endl;
+	}
+	else 
 	if (data.size() == 2) 
 	{
 	  if ( myParams.ngrams ) cout<< l_d.getSimilarityNgrams(data.at(0).c_str(),data.at(1).c_str()) <<endl;

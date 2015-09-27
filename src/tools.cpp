@@ -76,6 +76,23 @@ namespace Tools
         }
         return retour.str();
     }
+    string vectorToString ( vector<float> vec )
+    {
+        stringstream retour;
+	retour.str("");
+        for ( vector<float>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+        {
+            if ( vecIter == vec.begin() )
+            {
+                retour << ( *vecIter );
+            }
+            else
+            {
+                retour << "\t" << ( *vecIter );
+            }
+        }
+        return retour.str();
+    }
     string vectorToString ( vector<int> * vec )
     {
         stringstream retour;
@@ -136,6 +153,24 @@ namespace Tools
         stringstream retour;
 	retour.str("");
         for ( vector<int>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
+        {
+            if ( vecIter == vec.begin() )
+            {
+                retour << ( *vecIter );
+            }
+            else
+            {
+                retour <<  s << ( *vecIter );
+            }
+        }
+        return retour.str();
+
+    }
+    string vectorToString ( vector< float > vec, string s )
+    {
+        stringstream retour;
+	retour.str("");
+        for ( vector<float>::iterator vecIter = vec.begin();vecIter != vec.end(); vecIter++ )
         {
             if ( vecIter == vec.begin() )
             {

@@ -367,6 +367,35 @@ namespace word2vecdistance
       return dist;
   }
   
+    vector<float> distance::getWord(char *word)
+    {
+//       float vec1[max_size];
+//       float vec2[max_size];
+//       float len1=0;
+//       float len2=0;
+//       char st1[max_w];
+//       char st2[max_w];
+//       strcpy(st1, s1v.c_str());
+//       strcpy(st2, s2.c_str());
+//       float len;
+      vector<float> to_return(size,0.0);
+      float dist;
+      int a;
+//       cerr << "Words"<< endl;
+      int pos1 = -1; 
+      int pos2 = -1;
+//       b = 0;
+      pos1 = searchVocab(word);
+      if (pos1 == -1) 
+      {
+	to_return;
+      }
+      for (a = 0; a < size; a++) 
+      {
+	  to_return.at(a)=M[a + pos1 * size];
+      }
+      return to_return;
+  }
     float distance::getSimilarityNgrams(char * ng1, char * ng2)
   {
 //       float len;
@@ -728,6 +757,10 @@ float distance::getDistance(const char* s1, const char* s2)
 {
     return 1.0-getSimilarity(s1,s2);
 }
+float distance::getDistance(char* s1, char* s2)
+{
+    return 1.0-getSimilarity(s1,s2);
+}
 float distance::getDistanceNgrams(char* ng1, char* ng2)
 {
     return 1.0-getSimilarityNgrams(ng1,ng2);
@@ -752,6 +785,18 @@ float distance::getDistanceNgramsFixedOrdered(const char* ng1, const char* ng2)
 {
     return 1.0-getSimilarityNgramsFixedOrdered(ng1,ng2);
 }
+  vector<float> distance::getWord(const char* word)
+  {
+      char st1[max_size];
+      strcpy(st1,word);
+      return getWord(st1);
+  }
+vector< float > distance::getWord(string word)
+{
+      char st1[max_size];
+      strcpy(st1,word.c_str());
+      return getWord(st1);
 
+}
   
 }
