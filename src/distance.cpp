@@ -102,6 +102,20 @@ namespace word2vecdistance
       len = 0;
       for (a = 0; a < size; a++) len += M[a + b * size] * M[a + b * size];
       len = sqrt(len);
+//       if (strcmp(vocab[b * max_w]))
+// 	cout << &vocab[b * max_w] << b <<endl;
+//       for (a = 0; a < size; a++) 
+//       {
+// 	cout << M[a + b * size] << "\t" ; 
+//       }
+//       cout << endl; 
+//       for (a = 0; a < size; a++) 
+//       {
+// 	cout <<  Tools::floatToHex(M[a + b * size]) << "\t" ; 
+//       }
+//       cout << endl; 
+//       cout << len << endl; 
+
       for (a = 0; a < size; a++) M[a + b * size] /= len;
     }
     fclose(f);
@@ -394,6 +408,7 @@ namespace word2vecdistance
       {
 	  to_return.at(a)=M[a + pos1 * size];
       }
+      cout << "Position\t"<< pos1 << endl;
       return to_return;
   }
     float distance::getSimilarityNgrams(char * ng1, char * ng2)

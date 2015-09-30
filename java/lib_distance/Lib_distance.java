@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -31,26 +34,25 @@ public class Lib_distance
 		  //BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8);
 //		  String line;
 //		  System.out.println(reader.read());
-		  Charset charset = StandardCharsets.UTF_8;
-		  String content = new String(Files.readAllBytes(Paths.get(filename)), charset);
-		  
+//		  Charset charset = StandardCharsets.UTF_8;
+//		  String content = new String(Files.readAllBytes(Paths.get(filename)), charset);
 		  //System.out.println(content);
 //		  System.out.println(content.substring(0,300));
-		  String contentTab[]=content.substring(0,300).split("\\s+");
-		  words =  Integer.parseInt(contentTab[0]);
-		  size =  Integer.parseInt(contentTab[1]);
-		  int tmpLength=contentTab[0].length()+1+contentTab[1].length()+1;
-		  int cpt=0;
-		  String tmpcontent=content.substring(tmpLength);
+//		  String contentTab[]=content.substring(0,300).split("\\s+");
+//		  words =  Integer.parseInt(contentTab[0]);
+//		  size =  Integer.parseInt(contentTab[1]);
+//		  int tmpLength=contentTab[0].length()+1+contentTab[1].length()+1;
+//		  int cpt=0;
+//		  String tmpcontent=content.substring(tmpLength);
 //		  while (tmpLength < content.length() && cpt < 5)
 //		  {
-		  
-			  String output = tmpcontent.substring(0,tmpcontent.indexOf(" "));
-			  String data = tmpcontent.substring(tmpcontent.indexOf(" "),(int)(size+1)*2);
-			  System.out.println(output);
-			  System.out.println(data);
-			  
-			  cpt++;
+//		  
+//			  String output = tmpcontent.substring(0,tmpcontent.indexOf(" "));
+//			  String data = tmpcontent.substring(tmpcontent.indexOf(" "),(int)(size+1)*2);
+//			  System.out.println(output);
+//			  System.out.println(data);
+//			  
+//			  cpt++;
 //		  }
 	//      BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8);
 //	      System.out.println(reader.readLine());
@@ -58,14 +60,19 @@ public class Lib_distance
 			  
 //		  System.out.println("0 "+contentTab[0]);
 //		  System.out.println("1 "+contentTab[1]);
-		  System.out.println("2 "+contentTab[2]);
-		  System.out.println("3 "+contentTab[3]);
-		  System.out.println("4 "+contentTab[4]);
-		  System.out.println("5 "+contentTab[5]);
+//		  System.out.println("2 "+contentTab[2]);
+//		  System.out.println("3 "+contentTab[3]);
+//		  System.out.println("4 "+contentTab[4]);
+//		  System.out.println("5 "+contentTab[5]);
               //System.out.println(line);
+//		  byte[] bytes = Files.readAllBytes(Paths.get(filename));
+		  
 		  FileInputStream inputBinaryFile = new FileInputStream (filename);        // Fichier binaire    
 		  DataInputStream inputBinaryData = new DataInputStream (inputBinaryFile);    // Le même fichier via stream
-		  //0.198994        0.219711        -0.190422       -0.162968       0.0679395       0.150194        0.0467748       0.0105065       -0.179149       0.110292        -0.216578       0.0621211       -0.0373531      -0.0475865      -0.164842       -0.0935723      0.128232      0.150406 0.147607        0.079417        0.0767998       -0.189049       -0.203621       0.247066        0.18898 0.153622        -0.0300251      0.199639        -0.0246087      0.0365262       -0.00741903     -0.148312       0.0652389       -0.0664906      -0.190179     0.236354 0.217716        -0.0544441      -0.0112423      0.0253142       -0.180848       -0.199214       0.22644 0.00313298      -0.128384       -0.15124        -0.152947       0.084363        0.0100134       0.066172
+//		  </s>0
+//		  Original vector: 0.00800537      0.00883881      -0.00766052     -0.00655609     0.00273315      0.00604218      0.00188171      0.000422668     -0.00720703     0.00443695      -0.00871277     0.00249908      -0.00150269     -0.00191437     -0.00663147     -0.00376434     0.00515869    0.00605072       0.00593811      0.00319489      0.0030896       -0.00760529     -0.00819153     0.00993927      0.00760254      0.00618011      -0.00120789     0.00803131      -0.00098999     0.00146942      -0.000298462    -0.00596649     0.00262451      -0.00267487   -0.00765076      0.00950836      0.00875854      -0.00219025     -0.00045227     0.00101837      -0.00727539     -0.00801422     0.0091095       0.000126038     -0.0051648      -0.00608429     -0.00615295     0.00339386      0.000402832     0.00266205
+//		  0.0402292
+//		  Final vector: 0.198994        0.219711        -0.190422       -0.162968       0.0679395       0.150194        0.0467748       0.0105065       -0.179149       0.110292        -0.216578       0.0621211       -0.0373531      -0.0475865      -0.164842       -0.0935723      0.128232      0.150406 0.147607        0.079417        0.0767998       -0.189049       -0.203621       0.247066        0.18898 0.153622        -0.0300251      0.199639        -0.0246087      0.0365262       -0.00741903     -0.148312       0.0652389       -0.0664906      -0.190179     0.236354 0.217716        -0.0544441      -0.0112423      0.0253142       -0.180848       -0.199214       0.22644 0.00313298      -0.128384       -0.15124        -0.152947       0.084363        0.0100134       0.066172
 
 		  System.out.println(inputBinaryData.readLine());
 		  System.out.println(inputBinaryData.read());
@@ -74,6 +81,74 @@ public class Lib_distance
 		  System.out.println(inputBinaryData.read());
 		  System.out.println(inputBinaryData.read());
 		  System.out.print(inputBinaryData.read());
+		  System.out.print(" ");
+		  System.out.print(inputBinaryData.read());
+		  System.out.print(" ");
+		  System.out.print(inputBinaryData.read());
+		  System.out.print(" ");
+		  System.out.print(inputBinaryData.read());
+		  System.out.println(" ");
+//		  int size = 1; 
+//	      byte[] tempId3 = new byte[size];
+//	      inputBinaryData.readFloat(); 
+//	      inputBinaryData.read();
+//		  float[] test; 
+//		  try(FileChannel fc = new RandomAccessFile(filename, "r").getChannel()) {
+//			    FloatBuffer fb = fc.map(MapMode.READ_ONLY, 0, fc.size())
+//			                       .order(ByteOrder.nativeOrder()).asFloatBuffer();
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    System.out.print(fb.get());
+//			    System.out.print(" ");
+//			    // use fb 
+//			}
+//		  test.length;
+//		  System.out.println(0);
+//		  System.out.println(inputBinaryData.readUnsignedByte());
+//		  </s>0
+//		  0.00800537      0.00883881      -0.00766052     -0.00655609     0.00273315      0.00604218      0.00188171      0.000422668     -0.00720703     0.00443695      -0.00871277     0.00249908      -0.00150269     -0.00191437     -0.00663147     -0.00376434     0.00515869    0.00605072       0.00593811      0.00319489      0.0030896       -0.00760529     -0.00819153     0.00993927      0.00760254      0.00618011      -0.00120789     0.00803131      -0.00098999     0.00146942      -0.000298462    -0.00596649     0.00262451      -0.00267487   -0.00765076      0.00950836      0.00875854      -0.00219025     -0.00045227     0.00101837      -0.00727539     -0.00801422     0.0091095       0.000126038     -0.0051648      -0.00608429     -0.00615295     0.00339386      0.000402832     0.00266205
+//		  3C0328F6        3C10D0A4        BBFB051F        BBD6D47B        3B331EB8        3BC5FD71        3AF6A3D7        39DD999A        BBEC28F6        3B9163D7        BC0EC000        3B23C7AE        BAC4F5C3        BAFAEB85        BBD94CCD        BB76B333        3BA90A3D      3BC6451F 3BC2947B        3B516148        3B4A7AE1        BBF935C3        BC0635C3        3C22D852        3BF91EB8        3BCA828F        BA9E51EC        3C0395C3        BA81C28F        3AC0999A        B99C7AE1        BBC3828F        3B2C0000        BB2F4CCD        BBFAB333       3C1BC8F6        3C0F8000        BB0F8A3D        B9ED1EB8        3A857AE1        BBEE6666        BC034E14        3C154000        390428F6        BBA93D71        BBC75EB8        BBC99EB8        3B5E6B85        39D33333        3B2E75C3
+//		  0.0402292
+//
+//		  F6 28 03 3C => 3C 03 28 F6
+		  
+		  String myString = "3C0328F6";
+	      Long i = Long.parseLong(myString, 16);
+	      Float f = Float.intBitsToFloat(i.intValue());
+	      System.out.println(f);
+	      Double f2 = 0.00800537;
+	      System.out.println(Double.toHexString(Double.doubleToLongBits(f2)));
+	      System.out.println(Float.toHexString(Float.floatToIntBits(f2.floatValue())));
 		  /*
 		  int NbDonneesLues=0;         
 		  for(;;){                
@@ -82,9 +157,9 @@ public class Lib_distance
 		  NbDonneesLues++;                                            
 		  }
 */
-		  final String original = "Mémé dans les orties";
+//		  final String original = "Mémé dans les orties";
 
-	        final byte[] encoded = original.getBytes(charset);
+//	        final byte[] encoded = original.getBytes(charset);
     //      while ((line = reader.readLine()) != null) {
   //            System.out.println(line);
 //          }

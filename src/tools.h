@@ -31,6 +31,7 @@
 #include <sstream>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/functional/hash.hpp>
+#include <assert.h>
 
 using namespace std;
 
@@ -149,6 +150,7 @@ struct param
     size_t hashValueBoost(string s);
     vector< string > splitNgrams(const char *line);
     vector< string > splitLine(const char *ngram);
+    string floatToHex( float f );
 
      
 }

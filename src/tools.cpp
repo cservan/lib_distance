@@ -1167,5 +1167,17 @@ namespace Tools
       return item;
     }
 
+    string floatToHex( float f )
+    {
+// 	static_assert( numeric_limits<float>::is_iec559,
+// 		      "native float must be an IEEE float" ) ;
 
+	union { float fval ; uint32_t ival ; };
+	fval = f ;
+
+	ostringstream stm ;
+	stm << hex << uppercase << ival ;
+
+	return stm.str() ;
+    }
 }
