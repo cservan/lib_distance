@@ -25,8 +25,35 @@ public class Lib_distance
     private float[] L;
 //     struct vocab_word *vocab;
     private int[] vocab_hash;
+    
+    public String concatHexValues(String s1, String s2, String s3, String s4)
+    {
+    		String toReturn = "";
+    		if (s1.length() < 2)
+    		{
+    			toReturn = toReturn+"0"+s1;  
+    		}
+    		else toReturn = toReturn+s1;
+    		if (s2.length() < 2)
+    		{
+    			toReturn = toReturn+"0"+s2;  
+    		}
+    		else toReturn = toReturn+s2;
+    		if (s3.length() < 2)
+    		{
+    			toReturn = toReturn+"0"+s3;  
+    		}
+    		else toReturn = toReturn+s3;
+    		if (s4.length() < 2)
+    		{
+    			toReturn = toReturn+"0"+s4;  
+    		}
+    		else toReturn = toReturn+s4;
+    		return toReturn;
+    	
+    }
 
-	  public Lib_distance(String filename) throws IOException
+	public Lib_distance(String filename) throws IOException
 	  {
 		  
 //		  FileInputStream fis = new FileInputStream(filename);  
@@ -73,22 +100,38 @@ public class Lib_distance
 //		  Original vector: 0.00800537      0.00883881      -0.00766052     -0.00655609     0.00273315      0.00604218      0.00188171      0.000422668     -0.00720703     0.00443695      -0.00871277     0.00249908      -0.00150269     -0.00191437     -0.00663147     -0.00376434     0.00515869    0.00605072       0.00593811      0.00319489      0.0030896       -0.00760529     -0.00819153     0.00993927      0.00760254      0.00618011      -0.00120789     0.00803131      -0.00098999     0.00146942      -0.000298462    -0.00596649     0.00262451      -0.00267487   -0.00765076      0.00950836      0.00875854      -0.00219025     -0.00045227     0.00101837      -0.00727539     -0.00801422     0.0091095       0.000126038     -0.0051648      -0.00608429     -0.00615295     0.00339386      0.000402832     0.00266205
 //		  0.0402292
 //		  Final vector: 0.198994        0.219711        -0.190422       -0.162968       0.0679395       0.150194        0.0467748       0.0105065       -0.179149       0.110292        -0.216578       0.0621211       -0.0373531      -0.0475865      -0.164842       -0.0935723      0.128232      0.150406 0.147607        0.079417        0.0767998       -0.189049       -0.203621       0.247066        0.18898 0.153622        -0.0300251      0.199639        -0.0246087      0.0365262       -0.00741903     -0.148312       0.0652389       -0.0664906      -0.190179     0.236354 0.217716        -0.0544441      -0.0112423      0.0253142       -0.180848       -0.199214       0.22644 0.00313298      -0.128384       -0.15124        -0.152947       0.084363        0.0100134       0.066172
-
-		  System.out.println(inputBinaryData.readLine());
+		  System.out.println();
+		  String infos = inputBinaryData.readLine().toString();
+		  Vector<String> vInfos;
+		  int vocab_size
+		  String l_word="";
+		  char[] l_c=Character.toChars((int)inputBinaryData.read());
+		  while (l_c[0] != ' ')
+		  {
+			  l_word.concat(l_c.toString());
+		  }
+		  Character.toChars(65);
+		  System.out.println();
 		  System.out.println(inputBinaryData.read());
 		  System.out.println(inputBinaryData.read());
 		  System.out.println(inputBinaryData.read());
 		  System.out.println(inputBinaryData.read());
-		  System.out.println(inputBinaryData.read());
-		  System.out.print(inputBinaryData.read());
-		  System.out.print(" ");
-		  System.out.print(inputBinaryData.read());
-		  System.out.print(" ");
-		  System.out.print(inputBinaryData.read());
-		  System.out.print(" ");
-		  System.out.print(inputBinaryData.read());
-		  System.out.println(" ");
-//		  int size = 1; 
+		  String hex3 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
+		  String hex2 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
+		  String hex1 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
+		  String hex0 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
+		  String hex=concatHexValues(hex0, hex1, hex2, hex3);
+		  System.out.println(hex0+" "+hex1+" "+hex2+" "+hex3);
+		  System.out.println(hex);
+	      Long lI = Long.parseLong(hex, 16);
+	      Float lF = Float.intBitsToFloat(lI.intValue());
+	      System.out.println(lF);
+	      System.out.println("****************");
+	      
+		  
+		  
+		  //hex=;
+//		  //int size = 1; 
 //	      byte[] tempId3 = new byte[size];
 //	      inputBinaryData.readFloat(); 
 //	      inputBinaryData.read();
