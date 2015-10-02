@@ -6,26 +6,74 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Vector;
 
 public class Lib_distance
 {
-	public long max_size = 2000;         // max length of strings
-	public long N = 40;                  // number of closest words that will be shown
-	public long max_w = 50;              // max length of vocabulary entries
+	public long max_size = 2000;	   // max length of strings
+	public long N = 40;			// number of closest words that will be shown
+	public long max_w = 50;		  // max length of vocabulary entries
 	public int vocab_hash_size = 30000000;
 //    private char[] bestw[N];
 //    private char file_name[max_size], st[100][max_size];
 //    private float dist, len, bestd[N];
 //    private long words, size, a, b, c, d, cn, bi[100];
-	private long words, size, a, b, c, d, cn;
+	private long vocab_size, vector_size, a, b, c, d, cn;
     private char ch;
     private float[] M;
-    private char[] vocab;
+    private String[] vocab;
     private float[] D;
     private float[] L;
+    float[][] embeddings;
 //     struct vocab_word *vocab;
     private int[] vocab_hash;
-    
+    public int getWordHash(String word) 
+    {
+	  int a; 
+	  int hash = 0;
+	  for (a = 0; a < word.length(); a++)
+	  {
+	  	
+	  	hash = hash * 257 + Character.getNumericValue(word.charAt(a));
+	  }
+	  hash = hash % vocab_hash_size;
+	  return hash;
+    }
+    /* gets a word ID to get it */
+    public int searchVocab(String word) 
+    {
+	  int hash = word.hashCode();
+	  int l_b;
+	  while (true) 
+	  {
+	  	  if (vocab_hash[hash] == -1) return -1;
+	  	  l_b = vocab_hash[hash];
+	  	  if (vocab[l_b].compareTo(word) == 0 ) return vocab_hash[hash];
+	  	  hash = (hash + 1) % vocab_hash_size;
+	  }
+//	  return -1;
+    }
+    /* Adds a word to the vocabulary */
+    public void addWordToHash(String word, int l_pos) 
+    {    
+	int hash = word.hashCode();
+	while (vocab_hash[hash] != -1) hash = (hash + 1) % vocab_hash_size;
+	vocab_hash[hash] = l_pos;
+    }
+    public void fillHash()
+    {
+	  int c;
+	  vocab_hash = new int[vocab_hash_size];
+	  for (c = 0; c < vocab_hash_size; c++)
+	  {
+	  	vocab_hash[c] = -1;
+	  }
+	  for (c = 0; c < vocab_size; c++)
+	  {
+	  	addWordToHash(vocab[c], c);
+	  }
+    }
+
     public String concatHexValues(String s1, String s2, String s3, String s4)
     {
     		String toReturn = "";
@@ -81,9 +129,9 @@ public class Lib_distance
 //			  
 //			  cpt++;
 //		  }
-	//      BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8);
-//	      System.out.println(reader.readLine());
-	      
+	//	BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8);
+//		System.out.println(reader.readLine());
+		
 			  
 //		  System.out.println("0 "+contentTab[0]);
 //		  System.out.println("1 "+contentTab[1]);
@@ -91,54 +139,86 @@ public class Lib_distance
 //		  System.out.println("3 "+contentTab[3]);
 //		  System.out.println("4 "+contentTab[4]);
 //		  System.out.println("5 "+contentTab[5]);
-              //System.out.println(line);
+		  //System.out.println(line);
 //		  byte[] bytes = Files.readAllBytes(Paths.get(filename));
 		  
-		  FileInputStream inputBinaryFile = new FileInputStream (filename);        // Fichier binaire    
+		  FileInputStream inputBinaryFile = new FileInputStream (filename);	  // Fichier binaire    
 		  DataInputStream inputBinaryData = new DataInputStream (inputBinaryFile);    // Le même fichier via stream
 //		  </s>0
-//		  Original vector: 0.00800537      0.00883881      -0.00766052     -0.00655609     0.00273315      0.00604218      0.00188171      0.000422668     -0.00720703     0.00443695      -0.00871277     0.00249908      -0.00150269     -0.00191437     -0.00663147     -0.00376434     0.00515869    0.00605072       0.00593811      0.00319489      0.0030896       -0.00760529     -0.00819153     0.00993927      0.00760254      0.00618011      -0.00120789     0.00803131      -0.00098999     0.00146942      -0.000298462    -0.00596649     0.00262451      -0.00267487   -0.00765076      0.00950836      0.00875854      -0.00219025     -0.00045227     0.00101837      -0.00727539     -0.00801422     0.0091095       0.000126038     -0.0051648      -0.00608429     -0.00615295     0.00339386      0.000402832     0.00266205
+//		  Original vector: 0.00800537	0.00883881	-0.00766052     -0.00655609     0.00273315	0.00604218	0.00188171	0.000422668     -0.00720703     0.00443695	-0.00871277     0.00249908	-0.00150269     -0.00191437     -0.00663147     -0.00376434     0.00515869    0.00605072	 0.00593811	0.00319489	0.0030896	 -0.00760529     -0.00819153     0.00993927	0.00760254	0.00618011	-0.00120789     0.00803131	-0.00098999     0.00146942	-0.000298462    -0.00596649     0.00262451	-0.00267487   -0.00765076	0.00950836	0.00875854	-0.00219025     -0.00045227     0.00101837	-0.00727539     -0.00801422     0.0091095	 0.000126038     -0.0051648	-0.00608429     -0.00615295     0.00339386	0.000402832     0.00266205
 //		  0.0402292
-//		  Final vector: 0.198994        0.219711        -0.190422       -0.162968       0.0679395       0.150194        0.0467748       0.0105065       -0.179149       0.110292        -0.216578       0.0621211       -0.0373531      -0.0475865      -0.164842       -0.0935723      0.128232      0.150406 0.147607        0.079417        0.0767998       -0.189049       -0.203621       0.247066        0.18898 0.153622        -0.0300251      0.199639        -0.0246087      0.0365262       -0.00741903     -0.148312       0.0652389       -0.0664906      -0.190179     0.236354 0.217716        -0.0544441      -0.0112423      0.0253142       -0.180848       -0.199214       0.22644 0.00313298      -0.128384       -0.15124        -0.152947       0.084363        0.0100134       0.066172
+//		  Final vector: 0.198994	  0.219711	  -0.190422	 -0.162968	 0.0679395	 0.150194	  0.0467748	 0.0105065	 -0.179149	 0.110292	  -0.216578	 0.0621211	 -0.0373531	-0.0475865	-0.164842	 -0.0935723	0.128232	0.150406 0.147607	  0.079417	  0.0767998	 -0.189049	 -0.203621	 0.247066	  0.18898 0.153622	  -0.0300251	0.199639	  -0.0246087	0.0365262	 -0.00741903     -0.148312	 0.0652389	 -0.0664906	-0.190179     0.236354 0.217716	  -0.0544441	-0.0112423	0.0253142	 -0.180848	 -0.199214	 0.22644 0.00313298	-0.128384	 -0.15124	  -0.152947	 0.084363	  0.0100134	 0.066172
 		  System.out.println();
 		  String infos = inputBinaryData.readLine().toString();
-		  Vector<String> vInfos;
-		  int vocab_size
+		  String[] vInfos = infos.split(" ");
+		  vocab_size = Integer.parseInt(vInfos[0]);
+		  vector_size = Integer.parseInt(vInfos[1]);
 		  String l_word="";
-		  char[] l_c=Character.toChars((int)inputBinaryData.read());
-		  while (l_c[0] != ' ')
+		  int wordCount=0;
+		  System.out.print("Vocabulary size: ");
+		  System.out.println(vocab_size);
+		  System.out.print("Vector size: ");
+		  System.out.println(vector_size);
+		  embeddings = new float[(int) vocab_size][(int)vector_size];
+//		  while (wordCount<=vocab_size)
+		  int colCount=0;
+		  while (wordCount<vocab_size)
 		  {
-			  l_word.concat(l_c.toString());
+			  char[] l_c=Character.toChars((int)inputBinaryData.read());
+			  l_word="";
+			  while (l_c[0] != ' ')
+			  {
+				  l_word=l_word+String.copyValueOf(l_c);
+	//			  System.out.println(l_word);
+	//			  l_word=l_word.concat(l_c.toString());
+				  l_c=Character.toChars((int)inputBinaryData.read());
+			  }
+//			  System.out.println(l_word);
+//			  System.out.println();
+	//		  System.out.println(inputBinaryData.read());
+	//		  System.out.println(inputBinaryData.read());
+	//		  System.out.println(inputBinaryData.read());
+	//		  System.out.println(inputBinaryData.read());
+			  colCount=0;
+			  while(colCount < vector_size)
+			  {
+				  String hex3 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
+				  String hex2 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
+				  String hex1 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
+				  String hex0 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
+				  String hex=concatHexValues(hex0, hex1, hex2, hex3);
+//				  System.out.println(hex0+" "+hex1+" "+hex2+" "+hex3);
+//				  System.out.println(hex);
+			  	  Long lI = Long.parseLong(hex, 16);
+				  Float lF = Float.intBitsToFloat(lI.intValue());
+				  embeddings[wordCount][colCount]=lF;
+				  colCount++;
+			  }
+			  wordCount++;
+			  if (wordCount % (vocab_size/100) == 0) System.out.print(".");
+			  if (wordCount % (vocab_size/10) == 0) System.out.print("|");
+//			System.out.println(lF);
+//			System.out.println("****************");
 		  }
-		  Character.toChars(65);
 		  System.out.println();
-		  System.out.println(inputBinaryData.read());
-		  System.out.println(inputBinaryData.read());
-		  System.out.println(inputBinaryData.read());
-		  System.out.println(inputBinaryData.read());
-		  String hex3 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
-		  String hex2 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
-		  String hex1 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
-		  String hex0 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
-		  String hex=concatHexValues(hex0, hex1, hex2, hex3);
-		  System.out.println(hex0+" "+hex1+" "+hex2+" "+hex3);
-		  System.out.println(hex);
-	      Long lI = Long.parseLong(hex, 16);
-	      Float lF = Float.intBitsToFloat(lI.intValue());
-	      System.out.println(lF);
-	      System.out.println("****************");
-	      
-		  
+		  colCount=0;
+		  while (colCount<vector_size) 
+		  {
+			  System.out.print(embeddings[0][colCount]);
+			  System.out.print("\t");
+			  colCount++;
+		  }
+		  System.out.println();
 		  
 		  //hex=;
 //		  //int size = 1; 
-//	      byte[] tempId3 = new byte[size];
-//	      inputBinaryData.readFloat(); 
-//	      inputBinaryData.read();
+//		byte[] tempId3 = new byte[size];
+//		inputBinaryData.readFloat(); 
+//		inputBinaryData.read();
 //		  float[] test; 
 //		  try(FileChannel fc = new RandomAccessFile(filename, "r").getChannel()) {
 //			    FloatBuffer fb = fc.map(MapMode.READ_ONLY, 0, fc.size())
-//			                       .order(ByteOrder.nativeOrder()).asFloatBuffer();
+//						     .order(ByteOrder.nativeOrder()).asFloatBuffer();
 //			    System.out.print(fb.get());
 //			    System.out.print(" ");
 //			    System.out.print(fb.get());
@@ -179,33 +259,35 @@ public class Lib_distance
 //		  System.out.println(0);
 //		  System.out.println(inputBinaryData.readUnsignedByte());
 //		  </s>0
-//		  0.00800537      0.00883881      -0.00766052     -0.00655609     0.00273315      0.00604218      0.00188171      0.000422668     -0.00720703     0.00443695      -0.00871277     0.00249908      -0.00150269     -0.00191437     -0.00663147     -0.00376434     0.00515869    0.00605072       0.00593811      0.00319489      0.0030896       -0.00760529     -0.00819153     0.00993927      0.00760254      0.00618011      -0.00120789     0.00803131      -0.00098999     0.00146942      -0.000298462    -0.00596649     0.00262451      -0.00267487   -0.00765076      0.00950836      0.00875854      -0.00219025     -0.00045227     0.00101837      -0.00727539     -0.00801422     0.0091095       0.000126038     -0.0051648      -0.00608429     -0.00615295     0.00339386      0.000402832     0.00266205
-//		  3C0328F6        3C10D0A4        BBFB051F        BBD6D47B        3B331EB8        3BC5FD71        3AF6A3D7        39DD999A        BBEC28F6        3B9163D7        BC0EC000        3B23C7AE        BAC4F5C3        BAFAEB85        BBD94CCD        BB76B333        3BA90A3D      3BC6451F 3BC2947B        3B516148        3B4A7AE1        BBF935C3        BC0635C3        3C22D852        3BF91EB8        3BCA828F        BA9E51EC        3C0395C3        BA81C28F        3AC0999A        B99C7AE1        BBC3828F        3B2C0000        BB2F4CCD        BBFAB333       3C1BC8F6        3C0F8000        BB0F8A3D        B9ED1EB8        3A857AE1        BBEE6666        BC034E14        3C154000        390428F6        BBA93D71        BBC75EB8        BBC99EB8        3B5E6B85        39D33333        3B2E75C3
+//		  0.00800537	0.00883881	-0.00766052     -0.00655609     0.00273315		0.00604218		0.00188171		0.000422668     -0.00720703     0.00443695		-0.00871277     0.00249908		-0.00150269     -0.00191437     -0.00663147 -0.00376434     0.00515869  0.00605072	 	0.00593811		0.00319489		0.0030896	 	-0.00760529     -0.00819153     0.00993927	0.00760254	0.00618011	-0.00120789     	0.00803131	-0.00098999     0.00146942		-0.000298462    -0.00596649     0.00262451		-0.00267487   	-0.00765076		0.00950836	0.00875854	-0.00219025     -0.00045227     0.00101837		-0.00727539     -0.00801422     0.0091095	 0.000126038    -0.0051648		-0.00608429     -0.00615295     0.00339386		0.000402832     0.00266205
+//		  0.008005371	0.008838806	-0.0076605226	-0.0065560914	0.0027331542	0.0060421755	0.0018817139	4.2266847E-4	-0.0072070314	0.0044369507	-0.008712769	0.0024990845	-0.0015026856	-0.0019143677	-0.00663147	-0.0037643432	0.005158691	0.0060507203	0.0059381104	0.0031948853	0.0030895995	-0.007605286	-0.008191529	0.00993927	0.007602539	0.0061801146	-0.0012078858	0.008031311	-9.899902E-4	0.0014694214	-2.984619E-4	-0.0059664915	0.0026245117	-0.0026748658	-0.0076507567	0.009508362	0.008758545	-0.0021902465	-4.522705E-4	0.0010183715	-0.0072753904	-0.008014221	0.009109497	1.260376E-4		-0.005164795	-0.0060842894	-0.006152954	0.0033938598	4.0283203E-4	0.0026620484	
+
+//		  3C0328F6	  3C10D0A4	  BBFB051F	  BBD6D47B	  3B331EB8	  3BC5FD71	  3AF6A3D7	  39DD999A	  BBEC28F6	  3B9163D7	  BC0EC000	  3B23C7AE	  BAC4F5C3	  BAFAEB85	  BBD94CCD	  BB76B333	  3BA90A3D	3BC6451F 3BC2947B	  3B516148	  3B4A7AE1	  BBF935C3	  BC0635C3	  3C22D852	  3BF91EB8	  3BCA828F	  BA9E51EC	  3C0395C3	  BA81C28F	  3AC0999A	  B99C7AE1	  BBC3828F	  3B2C0000	  BB2F4CCD	  BBFAB333	 3C1BC8F6	  3C0F8000	  BB0F8A3D	  B9ED1EB8	  3A857AE1	  BBEE6666	  BC034E14	  3C154000	  390428F6	  BBA93D71	  BBC75EB8	  BBC99EB8	  3B5E6B85	  39D33333	  3B2E75C3
 //		  0.0402292
 //
 //		  F6 28 03 3C => 3C 03 28 F6
 		  
-		  String myString = "3C0328F6";
-	      Long i = Long.parseLong(myString, 16);
-	      Float f = Float.intBitsToFloat(i.intValue());
-	      System.out.println(f);
-	      Double f2 = 0.00800537;
-	      System.out.println(Double.toHexString(Double.doubleToLongBits(f2)));
-	      System.out.println(Float.toHexString(Float.floatToIntBits(f2.floatValue())));
+//		  String myString = "3C0328F6";
+//		Long i = Long.parseLong(myString, 16);
+//		Float f = Float.intBitsToFloat(i.intValue());
+//		System.out.println(f);
+//		Double f2 = 0.00800537;
+//		System.out.println(Double.toHexString(Double.doubleToLongBits(f2)));
+//		System.out.println(Float.toHexString(Float.floatToIntBits(f2.floatValue())));
 		  /*
-		  int NbDonneesLues=0;         
-		  for(;;){                
+		  int NbDonneesLues=0;	   
+		  for(;;){		    
 		   
 		  TabNum [NbDonneesLues] = (long)inputBinaryData.readInt ();
-		  NbDonneesLues++;                                            
+		  NbDonneesLues++;							  
 		  }
 */
 //		  final String original = "Mémé dans les orties";
 
-//	        final byte[] encoded = original.getBytes(charset);
-    //      while ((line = reader.readLine()) != null) {
-  //            System.out.println(line);
-//          }
+//		  final byte[] encoded = original.getBytes(charset);
+    //	while ((line = reader.readLine()) != null) {
+  //		System.out.println(line);
+//	    }
 /*
 		  int length = 1; 
 
@@ -226,11 +308,11 @@ public class Lib_distance
 
 		  for(int j = 0; j < 20; j++) 
 		  {
-		       int size = 2; 
-		       byte[] tempId3 = new byte[size];
-		       bin.read(tempId3, 0, size); 
-		       String id3 = new String ( tempId3, "US-ASCII" ); 
-		       System.out.println( " out = " + id3 );                  
+			 int size = 2; 
+			 byte[] tempId3 = new byte[size];
+			 bin.read(tempId3, 0, size); 
+			 String id3 = new String ( tempId3, "US-ASCII" ); 
+			 System.out.println( " out = " + id3 );			
 		  }*/
 	  }
 	  /*
@@ -239,8 +321,8 @@ public class Lib_distance
 	    f = fopen(file_name, "rb");
 	    if (f == NULL) 
 	    {
-	      printf("Word2Vec Model file not found\n");
-	      exit(-1);
+		printf("Word2Vec Model file not found\n");
+		exit(-1);
 	    }
 	    fscanf(f, "%lld", &words);
 	    fscanf(f, "%lld", &size);
@@ -251,26 +333,26 @@ public class Lib_distance
 //	     L = (float *)malloc((long long)words * sizeof(float));
 	    if (M == NULL) 
 	    {
-	      printf("Cannot allocate memory: %lld MB    %lld  %lld\n", (long long)words * size * sizeof(float) / 1048576, words, size);
-	      exit(-1);
+		printf("Cannot allocate memory: %lld MB    %lld  %lld\n", (long long)words * size * sizeof(float) / 1048576, words, size);
+		exit(-1);
 	    }
 	    cerr << "Loading word2vec model...";
 //	     printf("Allocation of memory: %lld MB    %lld  %lld\n", (long long)words * size * sizeof(float) / 1048576, words, size);
 	    for (b = 0; b < words; b++) 
 	    {
-	      a = 0;
-	      while (1) 
-	      {
+		a = 0;
+		while (1) 
+		{
 		vocab[b * max_w + a] = fgetc(f);
 		if (feof(f) || (vocab[b * max_w + a] == ' ')) break;
 		if ((a < max_w) && (vocab[b * max_w + a] != '\n')) a++;
-	      }
-	      vocab[b * max_w + a] = 0;
-	      for (a = 0; a < size; a++) fread(&M[a + b * size], sizeof(float), 1, f);
-	      len = 0;
-	      for (a = 0; a < size; a++) len += M[a + b * size] * M[a + b * size];
-	      len = sqrt(len);
-	      for (a = 0; a < size; a++) M[a + b * size] /= len;
+		}
+		vocab[b * max_w + a] = 0;
+		for (a = 0; a < size; a++) fread(&M[a + b * size], sizeof(float), 1, f);
+		len = 0;
+		for (a = 0; a < size; a++) len += M[a + b * size] * M[a + b * size];
+		len = sqrt(len);
+		for (a = 0; a < size; a++) M[a + b * size] /= len;
 	    }
 	    fclose(f);
 	    
@@ -314,12 +396,12 @@ public class Lib_distance
 //	     printf("Enter word or sentence (EXIT to break): ");
 	    a = 0;
 //	     while (1) {
-//	       st1[a] = fgetc(stdin);
-//	       if ((st1[a] == '\n') || (a >= max_size - 1)) {
-//	         st1[a] = 0;
-//	         break;
-//	       }
-//	       a++;
+//		 st1[a] = fgetc(stdin);
+//		 if ((st1[a] == '\n') || (a >= max_size - 1)) {
+//		   st1[a] = 0;
+//		   break;
+//		 }
+//		 a++;
 //	     }
 	    char st1[max_size];
 	    strcpy(st1, s.c_str());
@@ -329,89 +411,6 @@ public class Lib_distance
 	    b = 0;
 	    c = 0;
 	    while (1) {
-	      st[cn][b] = st1[c];
-	      b++;
-	      c++;
-	      st[cn][b] = 0;
-	      if (st1[c] == 0) break;
-	      if (st1[c] == ' ') {
-	        cn++;
-	        b = 0;
-	        c++;
-	      }
-	    }
-	    cn++;
-	    for (a = 0; a < cn; a++) {
-	      for (b = 0; b < words; b++) if (!strcmp(&vocab[b * max_w], st[a])) break;
-	      if (b == words) b = -1;
-	      bi[a] = b;
-//	       printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
-	      if (b == -1) {
-//	 	printf("%s: Out of dictionary word!\n",st[a]);
-	        return to_return;
-	      }
-	    }
-	    if (b == -1) return to_return;
-//	     printf("\n                                              Word       Cosine distance\n------------------------------------------------------------------------\n");
-	    for (a = 0; a < size; a++) vec[a] = 0;
-	    for (b = 0; b < cn; b++) {
-	      if (bi[b] == -1) continue;
-	      for (a = 0; a < size; a++) vec[a] += M[a + bi[b] * size];
-	    }
-	    len = 0;
-	    for (a = 0; a < size; a++) len += vec[a] * vec[a];
-	    len = sqrt(len);
-	    for (a = 0; a < size; a++) vec[a] /= len;
-	    for (a = 0; a < N; a++) bestd[a] = -1;
-	    for (a = 0; a < N; a++) bestw[a][0] = 0;
-	    for (c = 0; c < words; c++) {
-	      a = 0;
-	      for (b = 0; b < cn; b++) if (bi[b] == c) a = 1;
-	      if (a == 1) continue;
-	      dist = 0;
-	      for (a = 0; a < size; a++) dist += vec[a] * M[a + c * size];
-	      for (a = 0; a < N; a++) {
-	        if (dist > bestd[a]) {
-	          for (d = N - 1; d > a; d--) {
-	            bestd[d] = bestd[d - 1];
-	            strcpy(bestw[d], bestw[d - 1]);
-	          }
-	          bestd[a] = dist;
-	          strcpy(bestw[a], &vocab[c * max_w]);
-	          break;
-	        }
-	      }
-	    }
-	    
-//	       for (a = 0; a < N && a < 10 ; a++) 
-//	 	printf("%50s\t\t%f\n", bestw[a], bestd[a]);
-	    for (a = 0; a < N; a++) 
-	    {
-	      pair<String,float> l_p( String(bestw[a]), bestd[a]);
-//	       printf("%50s\t\t%f\n", bestw[a], bestd[a]);
-	      to_return.push_back(l_p);
-	    }
-	    return to_return;
-	  }
-	  float getSimilarity(String s1, String s2)
-	  {
-	    float vec1[max_size];
-	    float vec2[max_size];
-	  //     vector< pair< String, float > > to_return;
-	      for (a = 0; a < N; a++) bestd[a] = 0;
-	      for (a = 0; a < N; a++) bestw[a][0] = 0;
-//	       printf("Enter word or sentence (EXIT to break): ");
-	      a = 0;
-	      char st1[max_size];
-	      char st2[max_size];
-	      strcpy(st1, s1.c_str());
-	      strcpy(st2, s2.c_str());
-	      cn = 0;
-	      b = 0;
-	      c = 0;
-	      int pos1, pos2;
-	      // supression des espaces 
-	      while (1) {
 		st[cn][b] = st1[c];
 		b++;
 		c++;
@@ -422,10 +421,93 @@ public class Lib_distance
 		  b = 0;
 		  c++;
 		}
-	      }
-	      cn++;
-	      // supression des espaces 
-	      for (a = 0; a < cn; a++) {
+	    }
+	    cn++;
+	    for (a = 0; a < cn; a++) {
+		for (b = 0; b < words; b++) if (!strcmp(&vocab[b * max_w], st[a])) break;
+		if (b == words) b = -1;
+		bi[a] = b;
+//		 printf("\nWord: %s  Position in vocabulary: %lld\n", st[a], bi[a]);
+		if (b == -1) {
+//	 	printf("%s: Out of dictionary word!\n",st[a]);
+		  return to_return;
+		}
+	    }
+	    if (b == -1) return to_return;
+//	     printf("\n							    Word	 Cosine distance\n------------------------------------------------------------------------\n");
+	    for (a = 0; a < size; a++) vec[a] = 0;
+	    for (b = 0; b < cn; b++) {
+		if (bi[b] == -1) continue;
+		for (a = 0; a < size; a++) vec[a] += M[a + bi[b] * size];
+	    }
+	    len = 0;
+	    for (a = 0; a < size; a++) len += vec[a] * vec[a];
+	    len = sqrt(len);
+	    for (a = 0; a < size; a++) vec[a] /= len;
+	    for (a = 0; a < N; a++) bestd[a] = -1;
+	    for (a = 0; a < N; a++) bestw[a][0] = 0;
+	    for (c = 0; c < words; c++) {
+		a = 0;
+		for (b = 0; b < cn; b++) if (bi[b] == c) a = 1;
+		if (a == 1) continue;
+		dist = 0;
+		for (a = 0; a < size; a++) dist += vec[a] * M[a + c * size];
+		for (a = 0; a < N; a++) {
+		  if (dist > bestd[a]) {
+		    for (d = N - 1; d > a; d--) {
+			bestd[d] = bestd[d - 1];
+			strcpy(bestw[d], bestw[d - 1]);
+		    }
+		    bestd[a] = dist;
+		    strcpy(bestw[a], &vocab[c * max_w]);
+		    break;
+		  }
+		}
+	    }
+	    
+//		 for (a = 0; a < N && a < 10 ; a++) 
+//	 	printf("%50s\t\t%f\n", bestw[a], bestd[a]);
+	    for (a = 0; a < N; a++) 
+	    {
+		pair<String,float> l_p( String(bestw[a]), bestd[a]);
+//		 printf("%50s\t\t%f\n", bestw[a], bestd[a]);
+		to_return.push_back(l_p);
+	    }
+	    return to_return;
+	  }
+	  float getSimilarity(String s1, String s2)
+	  {
+	    float vec1[max_size];
+	    float vec2[max_size];
+	  //     vector< pair< String, float > > to_return;
+		for (a = 0; a < N; a++) bestd[a] = 0;
+		for (a = 0; a < N; a++) bestw[a][0] = 0;
+//		 printf("Enter word or sentence (EXIT to break): ");
+		a = 0;
+		char st1[max_size];
+		char st2[max_size];
+		strcpy(st1, s1.c_str());
+		strcpy(st2, s2.c_str());
+		cn = 0;
+		b = 0;
+		c = 0;
+		int pos1, pos2;
+		// supression des espaces 
+		while (1) {
+		st[cn][b] = st1[c];
+		b++;
+		c++;
+		st[cn][b] = 0;
+		if (st1[c] == 0) break;
+		if (st1[c] == ' ') {
+		  cn++;
+		  b = 0;
+		  c++;
+		}
+		}
+		cn++;
+		// supression des espaces 
+		for (a = 0; a < cn; a++) {
 		for (b = 0; b < words; b++) if (!strcmp(&vocab[b * max_w], st[a])) break;
 		if (b == words) b = -1;
 		bi[a] = b;
@@ -435,13 +517,13 @@ public class Lib_distance
 //	 	  printf("%s: Out of dictionary word!\n",st[a]);
 		  return 0.0;
 		}
-	      }
-	      // Verification de la présence dans le vocab
-	      cn = 0;
-	      b = 0;
-	      c = 0;
-	      // supression des espaces 
-	      while (1) {
+		}
+		// Verification de la présence dans le vocab
+		cn = 0;
+		b = 0;
+		c = 0;
+		// supression des espaces 
+		while (1) {
 		st[cn][b] = st2[c];
 		b++;
 		c++;
@@ -452,10 +534,10 @@ public class Lib_distance
 		  b = 0;
 		  c++;
 		}
-	      }
-	      cn++;
-	      for (a = 0; a < cn; a++) {
-//	       cerr << a << " " << cn << endl;
+		}
+		cn++;
+		for (a = 0; a < cn; a++) {
+//		 cerr << a << " " << cn << endl;
 		for (b = 0; b < words; b++) if (!strcmp(&vocab[b * max_w], st[a])) break;
 		if (b == words) b = -1;
 		bi[a] = b;
@@ -465,36 +547,36 @@ public class Lib_distance
 //	 	  printf("%s: Out of dictionary word!\n",st[a]);
 		  return 0.0;
 		}
-	      }
-	      
-	      if (b == -1) return 0.0;
-	  //     printf("\n                                              Word       Cosine distance\n------------------------------------------------------------------------\n");
-	      for (a = 0; a < size; a++) vec1[a] = 0;
-	      for (b = 0; b < cn; b++) {
+		}
+		
+		if (b == -1) return 0.0;
+	  //     printf("\n							    Word	 Cosine distance\n------------------------------------------------------------------------\n");
+		for (a = 0; a < size; a++) vec1[a] = 0;
+		for (b = 0; b < cn; b++) {
 		if (pos1 == -1) continue;
 		for (a = 0; a < size; a++) vec1[a] += M[a + pos1 * size];
-	      }
-	      len = 0;
-	      for (a = 0; a < size; a++) len += vec1[a] * vec1[a];
-	      len = sqrt(len);
-	      for (a = 0; a < size; a++) vec1[a] /= len;
+		}
+		len = 0;
+		for (a = 0; a < size; a++) len += vec1[a] * vec1[a];
+		len = sqrt(len);
+		for (a = 0; a < size; a++) vec1[a] /= len;
 
-	      for (a = 0; a < size; a++) vec2[a] = 0;
-	      for (b = 0; b < cn; b++) {
+		for (a = 0; a < size; a++) vec2[a] = 0;
+		for (b = 0; b < cn; b++) {
 		if (pos2 == -1) continue;
 		for (a = 0; a < size; a++) vec2[a] += M[a + pos2 * size];
-	      }
-	      len = 0;
-	      for (a = 0; a < size; a++) len += vec2[a] * vec2[a];
-	      len = sqrt(len);
-	      for (a = 0; a < size; a++) vec2[a] /= len;
-	      dist = 0;
-	      for (a = 0; a < size; a++) dist += vec1[a] * vec2[a];
-	      return dist;
+		}
+		len = 0;
+		for (a = 0; a < size; a++) len += vec2[a] * vec2[a];
+		len = sqrt(len);
+		for (a = 0; a < size; a++) vec2[a] /= len;
+		dist = 0;
+		for (a = 0; a < size; a++) dist += vec1[a] * vec2[a];
+		return dist;
 
-//	       for (a = 0; a < N; a++) bestd[a] = -1;
-//	       for (a = 0; a < N; a++) bestw[a][0] = 0;
-//	       for (c = 0; c < words; c++) {
+//		 for (a = 0; a < N; a++) bestd[a] = -1;
+//		 for (a = 0; a < N; a++) bestw[a][0] = 0;
+//		 for (c = 0; c < words; c++) {
 //	 	a = 0;
 //	 	for (b = 0; b < cn; b++) if (bi[b] == c) a = 1;
 //	 	if (a == 1) continue;
@@ -503,8 +585,8 @@ public class Lib_distance
 //	 	for (a = 0; a < N; a++) {
 //	 	  if (dist > bestd[a]) {
 //	 	    for (d = N - 1; d > a; d--) {
-//	 	      bestd[d] = bestd[d - 1];
-//	 	      strcpy(bestw[d], bestw[d - 1]);
+//	 		bestd[d] = bestd[d - 1];
+//	 		strcpy(bestw[d], bestw[d - 1]);
 //	 	    }
 //	 	    bestd[a] = dist;
 //	 	    
@@ -512,131 +594,131 @@ public class Lib_distance
 //	 	    break;
 //	 	  }
 //	 	}
-//	       }
-//	       for (a = 0; a < N && a < 2 ; a++) 
-//	       {
+//		 }
+//		 for (a = 0; a < N && a < 2 ; a++) 
+//		 {
 //	 	pair<String,float> l_p( String(bestw[a]), bestd[a]);
 //	 	printf("%50s\t\t%f\n", bestw[a], bestd[a]);
-//	       }
-//	       return 1.0;
+//		 }
+//		 return 1.0;
 	  }
 	  float getSimilarityTest(String &s1, String &s2)
 	  {
-//	       float vec1[max_size];
-//	       float vec2[max_size];
-//	       float len1=0;
-//	       float len2=0;
-	      char st1[max_w];
-	      char st2[max_w];
-	      strcpy(st1, s1.c_str());
-	      strcpy(st2, s2.c_str());
-	      int pos1 = -1; 
-	      int pos2 = -1;
-	      b = 0;
-	      for (b = 0; b < words; b++)
-	      {
+//		 float vec1[max_size];
+//		 float vec2[max_size];
+//		 float len1=0;
+//		 float len2=0;
+		char st1[max_w];
+		char st2[max_w];
+		strcpy(st1, s1.c_str());
+		strcpy(st2, s2.c_str());
+		int pos1 = -1; 
+		int pos2 = -1;
+		b = 0;
+		for (b = 0; b < words; b++)
+		{
 		if (!strcmp(&vocab[b * max_w], st1)) 
 		{
 		  pos1=b;
 		  break;
 		}
-	      }
-	      if (pos1 == -1) 
-	      {
+		}
+		if (pos1 == -1) 
+		{
 		return 0.0;
-	      }
-	      for (c = 0; c < words; c++)
-	      {
+		}
+		for (c = 0; c < words; c++)
+		{
 		if (!strcmp(&vocab[c * max_w], st2)) 
 		{
 		  pos2=c;
 		  break;
 		}
-	      }
-	      if (pos2 == -1) 
-	      {
+		}
+		if (pos2 == -1) 
+		{
 		return 0.0;
-	      }
-	      dist = 0;
-	      for (a = 0; a < size; a++) 
-	      {
+		}
+		dist = 0;
+		for (a = 0; a < size; a++) 
+		{
 		  dist += M[a + pos1 * size] * M[a + pos2 * size] ;
-	      }
-	      return dist;
+		}
+		return dist;
 	  }
 	  float getSimilarity(char * st1, char * st2)
 	  {
-//	       float vec1[max_size];
-//	       float vec2[max_size];
-//	       float len1=0;
-//	       float len2=0;
-	      int pos1 = -1; 
-	      int pos2 = -1;
-	      b = 0;
-	      pos1 = searchVocab(st1);
-	      if (pos1 == -1) 
-	      {
+//		 float vec1[max_size];
+//		 float vec2[max_size];
+//		 float len1=0;
+//		 float len2=0;
+		int pos1 = -1; 
+		int pos2 = -1;
+		b = 0;
+		pos1 = searchVocab(st1);
+		if (pos1 == -1) 
+		{
 		return 0.0;
-	      }
-	      pos2 = searchVocab(st2);
-	      if (pos2 == -1) 
-	      {
+		}
+		pos2 = searchVocab(st2);
+		if (pos2 == -1) 
+		{
 		return 0.0;
-	      }
-	      dist = 0;
-	      for (a = 0; a < size; a++) 
-	      {
+		}
+		dist = 0;
+		for (a = 0; a < size; a++) 
+		{
 		  dist += M[a + pos1 * size] * M[a + pos2 * size] ;
-	      }
-	      return dist;
+		}
+		return dist;
 	  }
 	  float getDistance(char * st1, char * st2)
 	  {
-	      return (1.0-getSimilarity(st1,st2));
+		return (1.0-getSimilarity(st1,st2));
 	  }
 	  float getDistance(String st1, String st2)
 	  {
-	      return (1.0-getSimilarity(st1,st2));
+		return (1.0-getSimilarity(st1,st2));
 	  }
 	 
 	  
 	  bool strcompare(char* c1, char* c2)
 	  {
-	      int l1 = strlen(c1);
-	      if (l1 != (int)strlen(c2))
-	      {
+		int l1 = strlen(c1);
+		if (l1 != (int)strlen(c2))
+		{
 		  return false;
-	      }
-	      for (int i = 0; i < l1; i++)
-	      {
+		}
+		for (int i = 0; i < l1; i++)
+		{
 		  if (c1[i] != c2[i]) return false;
-	      }
-	      return true;
+		}
+		return true;
 	  }
-	        // Returns hash value of a word 
+		  // Returns hash value of a word 
 	  int getWordHash(char *word) 
 	  {
-	      unsigned long long a, hash = 0;
-	      for (a = 0; a < strlen(word); a++) hash = hash * 257 + word[a];
-	      hash = hash % vocab_hash_size;
-	      return hash;
+		unsigned long long a, hash = 0;
+		for (a = 0; a < strlen(word); a++) hash = hash * 257 + word[a];
+		hash = hash % vocab_hash_size;
+		return hash;
 	  }
 
 	  // Returns position of a word in the vocabulary; if the word is not found, 
 	  // returns -1 
 	  int searchVocab(char *word) 
 	  {
-	      unsigned int hash = getWordHash(word);
-	      int l_b;
-	      while (1) 
-	      {
+		unsigned int hash = getWordHash(word);
+		int l_b;
+		while (1) 
+		{
 		  if (vocab_hash[hash] == -1) return -1;
 //	 	  if (!strcmp(word, vocab[vocab_hash[hash]].word)) return vocab_hash[hash];
 		  l_b = vocab_hash[hash];
 		  if (!strcmp(&vocab[l_b * max_w], word)) return vocab_hash[hash];
 		  hash = (hash + 1) % vocab_hash_size;
-	      }
-	      return -1;
+		}
+		return -1;
 	  }
 	  // Adds a word to the vocabulary 
 	  void addWordToHash(char *word, int l_pos) {    
@@ -646,16 +728,16 @@ public class Lib_distance
 	  }
 	  void fillHash()
 	  {
-	      int c;
-	      vocab_hash = (int*)calloc(vocab_hash_size, sizeof(int));
-	      for (c = 0; c < vocab_hash_size; c++)
-	      {
+		int c;
+		vocab_hash = (int*)calloc(vocab_hash_size, sizeof(int));
+		for (c = 0; c < vocab_hash_size; c++)
+		{
 		  vocab_hash[c] = -1;
-	      }
-	      for (c = 0; c < words; c++)
-	      {
+		}
+		for (c = 0; c < words; c++)
+		{
 		 addWordToHash(&vocab[c * max_w], c);
-	      }
+		}
 	  }
 	*/
 
