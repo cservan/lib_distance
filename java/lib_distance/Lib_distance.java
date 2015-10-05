@@ -6,6 +6,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Vector;
 
 public class Lib_distance
@@ -26,23 +28,33 @@ public class Lib_distance
     private float[] L;
     float[][] embeddings;
 //     struct vocab_word *vocab;
-    private int[] vocab_hash;
+    private int[] vocab_hash = new int[vocab_hash_size];
+    private HashMap<String, Integer> myHashMap;
     public int getWordHash(String word) 
     {
 	  int a; 
-	  int hash = 0;
+	  long hash = 0;
+//	  System.err.println(word);
 	  for (a = 0; a < word.length(); a++)
 	  {
-	  	
-	  	hash = hash * 257 + Character.getNumericValue(word.charAt(a));
+/*		System.err.println(hash);
+		System.err.print(word.charAt(a));
+		System.err.print(" ");
+		System.err.println(word.charAt(a));*/
+	  	hash = hash * 32 + word.charAt(a);
+//		System.err.println(hash);
+//		hash = hash % vocab_hash_size;
 	  }
+	  //System.err.println(hash);
+	  //System.err.println(hash);
 	  hash = hash % vocab_hash_size;
-	  return hash;
+	  return (int)hash;
     }
     /* gets a word ID to get it */
     public int searchVocab(String word) 
     {
-	  int hash = word.hashCode();
+//	  int hash = word.hashCode();
+	  int hash = getWordHash(word);
 	  int l_b;
 	  while (true) 
 	  {
@@ -56,7 +68,8 @@ public class Lib_distance
     /* Adds a word to the vocabulary */
     public void addWordToHash(String word, int l_pos) 
     {    
-	int hash = word.hashCode();
+//  	  int hash = word.hashCode();
+  	  int hash = getWordHash(word);
 	while (vocab_hash[hash] != -1) hash = (hash + 1) % vocab_hash_size;
 	vocab_hash[hash] = l_pos;
     }
@@ -153,13 +166,17 @@ public class Lib_distance
 		  String[] vInfos = infos.split(" ");
 		  vocab_size = Integer.parseInt(vInfos[0]);
 		  vector_size = Integer.parseInt(vInfos[1]);
+		  vocab= new String[(int)vocab_size];
+		  //Initialize all the values of the hash array to -1
+		  Arrays.fill(vocab_hash,-1);
 		  String l_word="";
 		  int wordCount=0;
+		  myHashMap = new HashMap<String, Integer>(vocab_hash_size);
 		  System.out.print("Vocabulary size: ");
 		  System.out.println(vocab_size);
 		  System.out.print("Vector size: ");
 		  System.out.println(vector_size);
-		  embeddings = new float[(int) vocab_size][(int)vector_size];
+		  embeddings = new float[(int)vocab_size][(int)vector_size];
 //		  while (wordCount<=vocab_size)
 		  int colCount=0;
 		  while (wordCount<vocab_size)
@@ -173,13 +190,16 @@ public class Lib_distance
 	//			  l_word=l_word.concat(l_c.toString());
 				  l_c=Character.toChars((int)inputBinaryData.read());
 			  }
-//			  System.out.println(l_word);
-//			  System.out.println();
+//			  System.out.print(l_word);
+//			  System.out.print(" ");
 	//		  System.out.println(inputBinaryData.read());
 	//		  System.out.println(inputBinaryData.read());
 	//		  System.out.println(inputBinaryData.read());
 	//		  System.out.println(inputBinaryData.read());
 			  colCount=0;
+			  vocab[wordCount]=l_word;
+			  myHashMap.put(l_word, wordCount);
+			  //addWordToHash(l_word, wordCount);
 			  while(colCount < vector_size)
 			  {
 				  String hex3 = Integer.toHexString(inputBinaryData.read()).toUpperCase();
@@ -201,14 +221,26 @@ public class Lib_distance
 //			System.out.println("****************");
 		  }
 		  System.out.println();
+		  
+		  String test = new String("bells");
+		  System.out.println(myHashMap.size());
+		  System.out.println(myHashMap.keySet().toString());
+		  if ( myHashMap.containsKey(test) )
+		  {
+		  wordCount=(int)myHashMap.get(test);
 		  colCount=0;
 		  while (colCount<vector_size) 
 		  {
-			  System.out.print(embeddings[0][colCount]);
+			  System.out.print(embeddings[wordCount][colCount]);
 			  System.out.print("\t");
 			  colCount++;
 		  }
 		  System.out.println();
+		  }
+		  else
+		  {
+			  System.out.println(test + " does not exists!");
+		  }
 		  
 		  //hex=;
 //		  //int size = 1; 
