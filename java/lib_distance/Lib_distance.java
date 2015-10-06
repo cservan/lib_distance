@@ -13,13 +13,10 @@ import java.util.Vector;
 
 public class Lib_distance
 {
-	public long max_size = 2000;	   // max length of strings
-	public long N = 40;			// number of closest words that will be shown
-	public long max_w = 50;		  // max length of vocabulary entries
-	public int vocab_hash_size = 30000000;
-	public int vocab_size, vector_size;
+	private int vocab_hash_size = 30000000;
+	private int vocab_size, vector_size;
     private String[] vocab;
-    float[][] embeddings;
+    private float[][] embeddings;
     private int[] vocab_hash = new int[vocab_hash_size];
     private HashMap<String, Integer> myHashMap;
     public String concatHexValues(String s1, String s2, String s3, String s4)
