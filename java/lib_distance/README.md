@@ -19,4 +19,7 @@ Or the cosine distance between two words (the reverse of the cosine similarity):
 test.getSimilarity(w1,w2);
 ```
 
+## Example
+
+Provided with the library, there is an example (file "Main_launch.java").
 
