@@ -1,5 +1,5 @@
 # lib_distance
-A simple library to use word2vec models in C++.
+A simple library to use word2vec models in C++ and JAVA.
 
 ## Installation
 
@@ -10,7 +10,7 @@ A short example is given in the test directory and installed in the myInstallDir
 
 ## Use
 
-The library need a word2vec binary model to be used. It is created by loading it.
+The library need a word2vec binary model to be used (and only binary models). See the example for more details.
 
 ## Questions
 
