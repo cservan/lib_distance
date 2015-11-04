@@ -16,7 +16,7 @@ test.getSimilarity(w1,w2);
 
 Or the cosine distance between two words (the reverse of the cosine similarity):
 ```java
-test.getSimilarity(w1,w2);
+test.getDistance(w1,w2);
 ```
 
 ## Example
