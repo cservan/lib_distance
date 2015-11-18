@@ -26,10 +26,16 @@ public class Main_launch
 	  { 
 		  String fileName= new String ("models/model.bin.ep7-nc10-refs.lc.cbow_1.size_50.window_5.hs_0.negative_20.mincount_2.en");
 		  Lib_distance test = new Lib_distance(fileName);
-		  String w1 = "to";
-		  String w2 = "a";
+		  String w1 = "you";
+		  String w2 = "me";
+		  System.out.println("Example of the cosine similarity score obtained with the two words "+w1 +" and "+w2+":");
 		  System.out.println(test.getSimilarity(w1,w2));
+		  System.out.println("Example of the 50 closest words to "+w1+":");
+		  System.out.println(test.getClosest(w1));
+		  System.out.println("Example of the 50 closest words to "+w2+":");
+		  System.out.println(test.getClosest(w2));
 //		  System.out.println(test.getDistance("</s>","</s>"));
 //		  Thread.sleep(1000);
+		  
 	  }
 }

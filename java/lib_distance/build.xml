@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<project name="LibDistance" default="dist" basedir=".">
+
+  <property name="version" value="0.9" />
+
+  <property name="LibDistance-jar" location="LibDistance-${version}.jar" />
+
+  <target name="init">
+    <mkdir dir="build" />
+  </target>
+
+  <target name="compile" depends="init">
+    <javac source="1.5" target="1.5" srcdir="src" destdir="build" encoding="UTF-8" debug="true"/>
+  </target>
+
+  <target name="dist" depends="compile">
+    <jar jarfile="${LibDistance-jar}" basedir="build">
+      <fileset dir="./" />
+      <manifest>
+        <attribute name="Main-Class" value="Main_launch" />
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="clean" description="clean up generated files">
+    <delete dir="build" />
+    <delete file="${LibDistance-jar}" />
+  </target>
+
+</project>

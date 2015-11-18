@@ -28,9 +28,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
+
 
 public class Lib_distance
 {
@@ -40,6 +44,8 @@ public class Lib_distance
     private float[][] embeddings;
     private int[] vocab_hash = new int[vocab_hash_size];
     private HashMap<String, Integer> myHashMap;
+    private HashMap<Integer, String> myReverseHashMap;
+    public static final int MAXRETURN = 50;
     public String concatHexValues(String s1, String s2, String s3, String s4)
     {
     		String toReturn = "";
@@ -84,6 +90,7 @@ public class Lib_distance
 		  String l_word="";
 		  int wordCount=0;
 		  myHashMap = new HashMap<String, Integer>(vocab_hash_size);
+		  myReverseHashMap = new HashMap<Integer, String>(vocab_hash_size);
 		  System.out.print("Vocabulary size: ");
 		  System.out.println(vocab_size);
 		  System.out.print("Vector size: ");
@@ -102,6 +109,7 @@ public class Lib_distance
 			  colCount=0;
 			  vocab[wordCount]=l_word;
 			  myHashMap.put(new String(l_word), wordCount);
+			  myReverseHashMap.put(wordCount,new String(l_word));
 			  float l_length=0;
 			  while(colCount < vector_size)
 			  {
@@ -141,6 +149,17 @@ public class Lib_distance
 		}
 		return toReturn;
 	}
+	public float getSimilarity(float[] v1, float[] v2)
+	{
+		  float sim = 0;
+		  int colCount = 0;
+		  while(colCount < vector_size)
+		  {
+			  sim = sim + v1[colCount]*v2[colCount];
+			  colCount++;
+		  }
+		  return sim;		
+	}
 	public float getSimilarity(String w1, String w2)
 	{
 		  if ( !myHashMap.containsKey(w1) )
@@ -156,18 +175,52 @@ public class Lib_distance
 		  float[] v1 = getVector(w1);
 		  float[] v2 = getVector(w2);
 		  //float[] vfinal = new float[(int)vector_size];
-		  float sim = 0;
-		  int colCount = 0;
-		  while(colCount < vector_size)
-		  {
-			  sim = sim + v1[colCount]*v2[colCount];
-			  colCount++;
-		  }
-		  return sim;
-		  
+		  return getSimilarity(v1, v2);		  
 	}
 	public float getDistance(String w1, String w2)
 	{
 		  return 1-getSimilarity(w1, w2);
+	}
+	public Vector< Vector <String> > getClosest(String w1)
+	{
+		Vector< Vector <String> > toReturn = new Vector< Vector <String> > ();
+		Vector <String> l_array = new Vector <String> ();
+		l_array.add("");
+		l_array.add("0.0");
+		toReturn.add(l_array);
+		  if ( !myHashMap.containsKey(w1) )
+		  {
+			  //System.err.println(w1 + " not founded!");
+			  return toReturn;
+		  }
+		  float[] v1 = getVector(w1);
+		  int w1_id = (int)myHashMap.get(w1);
+		  int i,j;
+		  float[] v2; 
+		  for (i = 0 ; i < vocab_size ; i++)
+		  {
+			  if (i != w1_id)
+			  {
+				  v2 = embeddings[i];
+				  l_array = new Vector <String> ();
+				  l_array.add(new String(myReverseHashMap.get(i)));
+				  float tmpScore = getSimilarity(v1, v2);
+				  l_array.add(Float.toString(tmpScore));
+				  j=0;
+				  while (j < toReturn.size() && j < MAXRETURN)
+				  {
+					  Vector <String>  l_l_array = toReturn.get(j);
+					  float l_tmpScore = Float.parseFloat(l_l_array.get(1));
+					  if  (tmpScore > l_tmpScore)
+					  {
+						  toReturn.add(j,l_array);
+						  break;
+					  }
+					  j++;
+				  }
+			  }
+		  }
+		  toReturn.remove(toReturn.lastElement());
+		  return toReturn;
 	}
 }
