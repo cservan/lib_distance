@@ -223,4 +223,86 @@ public class Lib_distance
 		  toReturn.remove(toReturn.lastElement());
 		  return toReturn;
 	}
+	public Vector< Vector <String> > getClosest(String w1 , Vector <String> vs)
+	{
+		Vector< Vector <String> > toReturn = new Vector< Vector <String> > ();
+		Vector <String> l_array = new Vector <String> ();
+		l_array.add("");
+		l_array.add("-1000.0");
+		toReturn.add(l_array);
+		  if ( !myHashMap.containsKey(w1) )
+		  {
+			  //System.err.println(w1 + " not founded!");
+			  return toReturn;
+		  }
+		  float[] v1 = getVector(w1);
+//		  int w1_id = (int)myHashMap.get(w1);
+		  int i,j;
+		  float[] v2; 
+		  float tmpScore = 0;
+		  for (i = 0 ; i < vs.size() ; i++)
+		  {
+			  l_array = new Vector <String> ();
+			  if ( !myHashMap.containsKey(w1) )
+			  {
+				  l_array.add(new String(vs.get(i)));
+				  l_array.add(new String("0.0"));
+			  }
+			  else
+			  {
+				  v2 = getVector(vs.get(i));
+				  l_array.add(new String(vs.get(i)));
+				  tmpScore = getSimilarity(v1, v2);
+				  l_array.add(Float.toString(tmpScore));
+				  
+			  }
+			  j=0;
+			  while (j < toReturn.size() )
+			  {
+				  Vector <String>  l_l_array = toReturn.get(j);
+				  float l_tmpScore = Float.parseFloat(l_l_array.get(1));
+				  if  (tmpScore > l_tmpScore)
+				  {
+					  toReturn.add(j,l_array);
+					  break;
+				  }
+				  j++;
+			  }
+		  }
+		  toReturn.remove(toReturn.lastElement());
+		  return toReturn;
+	}
+	public Vector< Vector <String> > getSimilarity(String w1 , Vector <String> vs)
+	{
+		Vector< Vector <String> > toReturn = new Vector< Vector <String> > ();
+		Vector <String> l_array = new Vector <String> ();
+		  if ( !myHashMap.containsKey(w1) )
+		  {
+			  //System.err.println(w1 + " not founded!");
+			  return toReturn;
+		  }
+		  float[] v1 = getVector(w1);
+//		  int w1_id = (int)myHashMap.get(w1);
+		  int i,j;
+		  float[] v2; 
+		  float tmpScore=0;
+		  for (i = 0 ; i < vs.size() ; i++)
+		  {
+			  l_array = new Vector <String> ();
+			  if ( !myHashMap.containsKey(w1) )
+			  {
+				  l_array.add(new String(vs.get(i)));
+				  l_array.add(new String("0.0"));
+			  }
+			  else
+			  {
+				  v2 = getVector(vs.get(i));
+				  l_array.add(new String(vs.get(i)));
+				  tmpScore = getSimilarity(v1, v2);
+				  l_array.add(Float.toString(tmpScore));
+			  }
+		  }
+		  toReturn.remove(toReturn.lastElement());
+		  return toReturn;
+	}	
 }

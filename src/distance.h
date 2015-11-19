@@ -67,6 +67,8 @@ class distance
       float getSimilarityNgramsFixed(char * ng1,char * ng2);
       float getSimilarityNgramsFixedOrdered(const char * ng1,const char * ng2);
       float getSimilarityNgramsFixedOrdered(char * ng1,char * ng2);
+      float getClosest(string s1,vector <string> vs);
+      float getClosest(string s1);
       float getDistance(string s1,string s2);
       float getDistance(char * s1,char * s2);
       float getDistance(const char * s1,const char * s2);
