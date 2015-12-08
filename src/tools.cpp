@@ -242,7 +242,7 @@ namespace Tools
 
     }
 
-    string vectorToString ( vector<char*> vec, string s , int taille)
+    string vectorToString ( vector< char >* vec, string& s, int taille)
     {
         stringstream retour;
 	retour.str("");

@@ -36,6 +36,15 @@ public class Main_launch
 		  System.out.println(test.getClosest(w2));
 //		  System.out.println(test.getDistance("</s>","</s>"));
 //		  Thread.sleep(1000);
+		  fileName= new String ("models/model.txt.ep7-nc10.lc.cbow_1.size_50.window_5.hs_0.negative_20.mincount_2.en");
+		  Lib_distance test2 = new Lib_distance(fileName,"UTF8");
+		  System.out.println("Example of the cosine similarity score obtained with the two words "+w1 +" and "+w2+":");
+		  System.out.println(test2.getSimilarity(w1,w2));
+		  System.out.println("Example of the 50 closest words to "+w1+":");
+		  System.out.println(test2.getClosest(w1));
+		  System.out.println("Example of the 50 closest words to "+w2+":");
+		  System.out.println(test2.getClosest(w2));
+		  
 		  
 	  }
 }
