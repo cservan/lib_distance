@@ -251,11 +251,11 @@ namespace Tools
         {
             if ( l_i == 0 )
             {
-                retour << vec[l_i];
+                retour << vec->at(l_i);
             }
             else
             {
-                retour << s << vec[l_i];
+                retour << s << vec->at(l_i);
             }
         }
         return retour.str();
@@ -416,7 +416,7 @@ namespace Tools
         }
         return retour;
     }
-    vector<string> stringToVector ( string s, string tok )
+    vector<string> stringToVector ( string& s, string tok )
     {
         vector<string> to_return;
         string to_push ( "" );
@@ -442,7 +442,7 @@ namespace Tools
         to_return.push_back ( to_push );
         return to_return;
     }
-    vector<int> stringToVectorInt ( string s, string tok )
+    vector<int> stringToVectorInt ( string& s, string tok )
     {
         vector<int> to_return;
         string to_push ( "" );
@@ -474,7 +474,7 @@ namespace Tools
         }
         return to_return;
     }
-    vector<float> stringToVectorFloat ( string s, string tok )
+    vector<float> stringToVectorFloat ( string& s, string tok )
     {
         vector<float> to_return;
         string to_push ( "" );
